@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+enum Role {
+  ADMIN
+  CREATOR
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  role         Role     @default(CREATOR)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  creatorProfile CreatorProfile?
+}
+
+model CreatorProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  slug        String @unique
+  displayName String
+  bio         String @default("")
+
+  /// Percentage of the charged amount that belongs to the creator (0–100). The remainder is the platform share.
+  creatorSharePercent Int @default(70)
+
+  /// Optional Paystack Transaction Split code from your Paystack dashboard (per-creator or shared group).
+  paystackSplitCode String?
+
+  /// Creator subaccount code from Paystack (often required when building splits).
+  paystackSubaccountCode String?
+
+  approved Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  transactions Transaction[]
+}
+
+model Transaction {
+  id                String @id @default(cuid())
+  paystackReference String @unique
+
+  amountKobo Int
+  currency   String @default("NGN")
+  status     String @default("pending")
+
+  creatorSharePercentSnapshot Int
+  creatorAmountKobo           Int?
+  platformAmountKobo          Int?
+
+  customerEmail String?
+  metadata      Json?
+
+  creatorProfileId String
+  creatorProfile   CreatorProfile @relation(fields: [creatorProfileId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
