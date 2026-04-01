@@ -1,11 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { HeaderAuth } from "@/components/header-auth";
 
 export function SiteHeader() {
   const { data: session } = useSession();
+  const pathname = usePathname();
+
+  const isAuthRoute = pathname === "/login" || pathname === "/register";
+  const showForCreators = !session && !isAuthRoute;
 
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-200/80 bg-white/80 backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-950/80">
@@ -19,9 +24,11 @@ export function SiteHeader() {
               Home
             </Link>
           )}
-          <Link href="/register" className="hover:text-zinc-900 dark:hover:text-zinc-100">
-            For creators
-          </Link>
+          {showForCreators && (
+            <Link href="/register" className="hover:text-zinc-900 dark:hover:text-zinc-100">
+              For creators
+            </Link>
+          )}
           <HeaderAuth />
         </nav>
       </div>
