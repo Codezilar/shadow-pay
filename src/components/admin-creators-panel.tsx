@@ -11,6 +11,7 @@ export type AdminCreatorRow = {
   creatorSharePercent: number;
   paystackSplitCode: string | null;
   paystackSubaccountCode: string | null;
+  paymentAmounts: number[];
   user: { email: string };
 };
 
@@ -99,6 +100,7 @@ function AdminCreatorCard({ initial }: { initial: AdminCreatorRow }) {
         paystackSubaccountCode: row.paystackSubaccountCode || null,
         displayName: row.displayName,
         bio: row.bio,
+        paymentAmounts: row.paymentAmounts,
       }),
     });
     const data = (await res.json().catch(() => ({}))) as { error?: string; profile?: AdminCreatorRow };
@@ -175,6 +177,24 @@ function AdminCreatorCard({ initial }: { initial: AdminCreatorRow }) {
             rows={3}
             className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
           />
+        </label>
+        <label className="flex flex-col gap-1 text-sm sm:col-span-2">
+          <span className="font-medium text-zinc-700 dark:text-zinc-300">
+            Payment amounts (NGN) <span className="text-xs font-normal text-zinc-500">comma-separated, e.g., 5000,10000,50000</span>
+          </span>
+          <input
+            value={row.paymentAmounts.join(", ")}
+            onChange={(e) => {
+              const amounts = e.target.value
+                .split(",")
+                .map((s) => Number(s.trim()))
+                .filter((n) => Number.isFinite(n) && n > 0);
+              setRow({ ...row, paymentAmounts: amounts });
+            }}
+            placeholder="5000, 10000, 50000"
+            className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-900"
+          />
+          <p className="text-xs text-zinc-500">Leave empty to allow any amount. Leave configured amounts to restrict payment options.</p>
         </label>
         <label className="flex flex-col gap-1 text-sm">
           <span className="font-medium text-zinc-700 dark:text-zinc-300">Paystack split code</span>

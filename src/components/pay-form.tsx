@@ -7,6 +7,7 @@ type Creator = {
   displayName: string;
   bio: string | null;
   creatorSharePercent: number;
+  paymentAmounts?: number[];
 };
 
 function formatNgnFromKobo(kobo: number) {
@@ -14,10 +15,16 @@ function formatNgnFromKobo(kobo: number) {
 }
 
 export function PayForm({ creator }: { creator: Creator }) {
-  const [amount, setAmount] = useState("10000");
+  const [amount, setAmount] = useState(
+    (creator.paymentAmounts && creator.paymentAmounts.length > 0
+      ? creator.paymentAmounts[0]
+      : 10000).toString()
+  );
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const hasPresetAmounts = creator.paymentAmounts && creator.paymentAmounts.length > 0;
 
   const amountNum = Number(amount);
   const amountKobo = Number.isFinite(amountNum) ? Math.round(amountNum * 100) : 0;
@@ -52,16 +59,38 @@ export function PayForm({ creator }: { creator: Creator }) {
 
   return (
     <form onSubmit={pay} className="flex flex-col gap-5">
-      <label className="flex flex-col gap-1 text-sm">
-        <span className="font-medium text-zinc-700 dark:text-zinc-300">Amount (NGN)</span>
-        <input
-          required
-          inputMode="decimal"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          className="rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-lg font-medium text-zinc-900 outline-none ring-emerald-500/30 focus:border-emerald-500 focus:ring-4 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
-        />
-      </label>
+      {hasPresetAmounts ? (
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Select amount (NGN)</label>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {creator.paymentAmounts!.map((preset) => (
+              <button
+                key={preset}
+                type="button"
+                onClick={() => setAmount(preset.toString())}
+                className={`rounded-lg border-2 px-3 py-2.5 text-sm font-semibold transition-colors ${
+                  Number(amount) === preset
+                    ? "border-emerald-500 bg-emerald-50 text-emerald-900 dark:border-emerald-400 dark:bg-emerald-950 dark:text-emerald-100"
+                    : "border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-800"
+                }`}
+              >
+                {formatNgnFromKobo(preset * 100)}
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <label className="flex flex-col gap-1 text-sm">
+          <span className="font-medium text-zinc-700 dark:text-zinc-300">Amount (NGN)</span>
+          <input
+            required
+            inputMode="decimal"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            className="rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-lg font-medium text-zinc-900 outline-none ring-emerald-500/30 focus:border-emerald-500 focus:ring-4 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+          />
+        </label>
+      )}
       <label className="flex flex-col gap-1 text-sm">
         <span className="font-medium text-zinc-700 dark:text-zinc-300">Your email</span>
         <input

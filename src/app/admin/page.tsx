@@ -42,6 +42,7 @@ export default async function AdminPage() {
         creatorSharePercent: c.creatorSharePercent,
         paystackSplitCode: c.paystackSplitCode,
         paystackSubaccountCode: c.paystackSubaccountCode,
+        paymentAmounts: JSON.parse(c.paymentAmountsJson || "[]"),
         user: { email: c.user.email },
       }))}
     />

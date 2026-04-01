@@ -31,6 +31,7 @@ export default async function CreatorPayPage({ params }: Props) {
               displayName: creator.displayName,
               bio: creator.bio,
               creatorSharePercent: creator.creatorSharePercent,
+              paymentAmounts: JSON.parse(creator.paymentAmountsJson || "[]"),
             }}
           />
         </div>

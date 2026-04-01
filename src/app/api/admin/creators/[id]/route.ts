@@ -11,6 +11,7 @@ const patchSchema = z.object({
   paystackSubaccountCode: z.union([z.string().min(1).max(64), z.null()]).optional(),
   displayName: z.string().min(1).max(80).optional(),
   bio: z.string().max(2000).optional(),
+  paymentAmounts: z.array(z.number().positive()).optional(),
 });
 
 export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }> }) {
@@ -42,6 +43,7 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
     update.paystackSubaccountCode = data.paystackSubaccountCode ?? null;
   if (data.displayName !== undefined) update.displayName = data.displayName;
   if (data.bio !== undefined) update.bio = data.bio;
+  if (data.paymentAmounts !== undefined) update.paymentAmountsJson = JSON.stringify(data.paymentAmounts);
 
   if (Object.keys(update).length === 0) {
     return NextResponse.json({ error: "No fields to update" }, { status: 400 });

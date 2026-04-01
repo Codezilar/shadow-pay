@@ -44,6 +44,9 @@ model CreatorProfile {
 
   approved Boolean @default(false)
 
+  /// JSON array of payment amounts (in NGN) that this creator accepts. E.g., [5000, 10000, 50000]. If empty, allow dynamic amounts.
+  paymentAmountsJson String @default("[]")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
