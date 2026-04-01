@@ -19,10 +19,12 @@ export default async function CreatorPayPage({ params }: Props) {
       <div className="w-full max-w-lg rounded-3xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
         <p className="text-xs font-medium uppercase tracking-wide text-emerald-700 dark:text-emerald-400">Pay</p>
         <h1 className="mt-2 text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-          {creator.displayName}
+          {creator.courseTitle || creator.displayName}
         </h1>
-        {creator.bio ? (
-          <p className="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{creator.bio}</p>
+        {(creator.courseDescription || creator.bio) ? (
+          <p className="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+            {creator.courseDescription || creator.bio}
+          </p>
         ) : null}
         <div className="mt-8">
           <PayForm
@@ -32,6 +34,8 @@ export default async function CreatorPayPage({ params }: Props) {
               bio: creator.bio,
               creatorSharePercent: creator.creatorSharePercent,
               paymentAmounts: JSON.parse(creator.paymentAmountsJson || "[]"),
+              courseTitle: creator.courseTitle,
+              courseDescription: creator.courseDescription,
             }}
           />
         </div>

@@ -8,6 +8,8 @@ type Creator = {
   bio: string | null;
   creatorSharePercent: number;
   paymentAmounts?: number[];
+  courseTitle: string;
+  courseDescription: string;
 };
 
 function formatNgnFromKobo(kobo: number) {
@@ -61,7 +63,7 @@ export function PayForm({ creator }: { creator: Creator }) {
     <form onSubmit={pay} className="flex flex-col gap-5">
       {hasPresetAmounts ? (
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Select amount (NGN)</label>
+          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Course Price (NGN)</label>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {creator.paymentAmounts!.map((preset) => (
               <button
@@ -106,16 +108,6 @@ export function PayForm({ creator }: { creator: Creator }) {
       {amountKobo >= 100_00 && (
         <div className="rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-zinc-400">
           <p className="font-medium text-zinc-800 dark:text-zinc-200">Split preview (agreement on file)</p>
-          <ul className="mt-2 space-y-1">
-            <li>
-              Creator ({creator.creatorSharePercent}%):{" "}
-              <span className="font-mono text-zinc-900 dark:text-zinc-100">{formatNgnFromKobo(creatorKobo)}</span>
-            </li>
-            <li>
-              Platform:{" "}
-              <span className="font-mono text-zinc-900 dark:text-zinc-100">{formatNgnFromKobo(platformKobo)}</span>
-            </li>
-          </ul>
           <p className="mt-2 text-xs text-zinc-500">
             Actual settlement follows your Paystack split / subaccount setup. This preview reflects the percentages stored
             for this creator.

@@ -51,14 +51,14 @@ async function main() {
       slug: "sample-creator",
       displayName: "Sample Creator",
       bio: "This is a sample creator for testing payments.",
-      creatorSharePercent: 70,
+      creatorSharePercent: 20,
       approved: true,
     },
     update: {
       slug: "sample-creator",
       displayName: "Sample Creator",
       bio: "This is a sample creator for testing payments.",
-      creatorSharePercent: 70,
+      creatorSharePercent: 20,
       approved: true,
     },
   });

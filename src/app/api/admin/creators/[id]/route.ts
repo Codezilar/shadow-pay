@@ -12,6 +12,8 @@ const patchSchema = z.object({
   displayName: z.string().min(1).max(80).optional(),
   bio: z.string().max(2000).optional(),
   paymentAmounts: z.array(z.number().positive()).optional(),
+  courseTitle: z.string().max(200).optional(),
+  courseDescription: z.string().max(1000).optional(),
 });
 
 export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }> }) {
@@ -44,6 +46,8 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
   if (data.displayName !== undefined) update.displayName = data.displayName;
   if (data.bio !== undefined) update.bio = data.bio;
   if (data.paymentAmounts !== undefined) update.paymentAmountsJson = JSON.stringify(data.paymentAmounts);
+  if (data.courseTitle !== undefined) update.courseTitle = data.courseTitle;
+  if (data.courseDescription !== undefined) update.courseDescription = data.courseDescription;
 
   if (Object.keys(update).length === 0) {
     return NextResponse.json({ error: "No fields to update" }, { status: 400 });

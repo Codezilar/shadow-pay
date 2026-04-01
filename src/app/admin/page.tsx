@@ -10,7 +10,7 @@ export default async function AdminPage() {
 
   const creators = await prisma.creatorProfile.findMany({
     orderBy: { createdAt: "desc" },
-    include: { user: { select: { email: true } } },
+    include: { user: { select: { email: true, name: true } } },
   });
 
   const successful = await prisma.transaction.aggregate({
@@ -43,7 +43,9 @@ export default async function AdminPage() {
         paystackSplitCode: c.paystackSplitCode,
         paystackSubaccountCode: c.paystackSubaccountCode,
         paymentAmounts: JSON.parse(c.paymentAmountsJson || "[]"),
-        user: { email: c.user.email },
+        courseTitle: c.courseTitle,
+        courseDescription: c.courseDescription,
+        user: { email: c.user.email, name: c.user.name },
       }))}
     />
   );
