@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type WithdrawalStatus = "PENDING" | "PROCESSING" | "COMPLETED";
 
@@ -34,6 +34,11 @@ export type DashboardProfile = {
   courseDescription: string;
   user: { email: string; name: string | null };
 };
+
+type ToastState = {
+  tone: "success" | "error";
+  message: string;
+} | null;
 
 function formatNgnFromKobo(kobo: number) {
   return new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN" }).format(kobo / 100);
@@ -74,10 +79,18 @@ export function CreatorDashboard({
   const [withdrawMsg, setWithdrawMsg] = useState<string | null>(null);
   const [withdrawErr, setWithdrawErr] = useState<string | null>(null);
   const [withdrawLoading, setWithdrawLoading] = useState(false);
+  const [toast, setToast] = useState<ToastState>(null);
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
   const payLink = `${origin}/p/${profile.slug}`;
   const communityLink = `/community/${profile.slug}`;
+
+  useEffect(() => {
+    if (!toast) return;
+
+    const timeout = window.setTimeout(() => setToast(null), 3200);
+    return () => window.clearTimeout(timeout);
+  }, [toast]);
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
@@ -102,23 +115,69 @@ export function CreatorDashboard({
     e.preventDefault();
     setWithdrawMsg(null);
     setWithdrawErr(null);
+
+    const amountNgn = Number(withdrawAmount);
+    if (!Number.isFinite(amountNgn) || amountNgn <= 0) {
+      const message = "Enter a valid withdrawal amount.";
+      setWithdrawErr(message);
+      setToast({ tone: "error", message });
+      return;
+    }
+
+    if (availableBalanceKobo < 1_000_000) {
+      const message = "Available balance must be at least NGN 10,000 before requesting withdrawal.";
+      setWithdrawErr(message);
+      setToast({ tone: "error", message });
+      return;
+    }
+
+    if (Math.round(amountNgn * 100) > availableBalanceKobo) {
+      const message = "Withdrawal amount exceeds your available balance.";
+      setWithdrawErr(message);
+      setToast({ tone: "error", message });
+      return;
+    }
+
     setWithdrawLoading(true);
     const res = await fetch("/api/creator/withdrawals", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amountNgn: Number(withdrawAmount) }),
+      body: JSON.stringify({ amountNgn }),
     });
     const data = (await res.json().catch(() => ({}))) as { error?: string };
     setWithdrawLoading(false);
     if (!res.ok) {
-      setWithdrawErr(data.error || "Could not create withdrawal request");
+      const message = data.error || "Could not create withdrawal request";
+      setWithdrawErr(message);
+      setToast({ tone: "error", message });
       return;
     }
-    setWithdrawMsg("Withdrawal request submitted. Refresh to see the latest status.");
+    const message = "Withdrawal request submitted. Refresh to see the latest status.";
+    setWithdrawMsg(message);
+    setToast({ tone: "success", message });
   }
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-10 sm:px-6">
+      {toast ? (
+        <div className="pointer-events-none fixed right-4 top-20 z-50 w-[min(360px,calc(100vw-2rem))]">
+          <div
+            className={`rounded-2xl border px-4 py-3 shadow-[0_18px_40px_rgba(2,6,23,0.35)] backdrop-blur-xl ${
+              toast.tone === "success"
+                ? "border-emerald-400/30 bg-emerald-400/12 text-emerald-100"
+                : "border-rose-400/30 bg-rose-400/12 text-rose-100"
+            }`}
+            role="status"
+            aria-live="polite"
+          >
+            <p className="text-xs font-semibold uppercase tracking-[0.2em]">
+              {toast.tone === "success" ? "Request sent" : "Withdrawal error"}
+            </p>
+            <p className="mt-1 text-sm">{toast.message}</p>
+          </div>
+        </div>
+      ) : null}
+
       <div>
         <p className="text-xs uppercase tracking-[0.32em] text-cyan-200/80">Creator Capsule</p>
         <h1 className="mt-3 text-3xl font-semibold tracking-[0.05em] text-white">Creator dashboard</h1>
@@ -242,11 +301,14 @@ export function CreatorDashboard({
             </label>
             <button
               type="submit"
-              disabled={withdrawLoading || availableBalanceKobo < 1_000_000}
+              disabled={withdrawLoading}
               className="sci-button mt-4 rounded-full px-5 py-3 text-sm font-semibold uppercase tracking-[0.18em] disabled:opacity-60"
             >
               {withdrawLoading ? "Sending…" : "Request withdrawal"}
             </button>
+            <p className="mt-3 text-xs text-slate-500">
+              You&apos;ll get instant feedback here if the amount is invalid or your balance is below the withdrawal threshold.
+            </p>
           </form>
 
           <div className="sci-panel rounded-[30px] p-6">
