@@ -6,6 +6,8 @@ import { prisma } from "@/lib/db";
 const patchSchema = z.object({
   displayName: z.string().min(1).max(80).optional(),
   bio: z.string().max(2000).optional(),
+  courseTitle: z.string().max(200).optional(),
+  courseDescription: z.string().max(1000).optional(),
 });
 
 export async function GET() {

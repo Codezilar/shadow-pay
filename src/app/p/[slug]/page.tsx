@@ -16,16 +16,24 @@ export default async function CreatorPayPage({ params }: Props) {
 
   return (
     <div className="flex flex-1 flex-col items-center px-4 py-12 sm:py-16">
-      <div className="w-full max-w-lg rounded-3xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-        <p className="text-xs font-medium uppercase tracking-wide text-emerald-700 dark:text-emerald-400">Pay</p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+      <div className="sci-panel w-full max-w-2xl rounded-[34px] p-8">
+        <p className="text-xs font-medium uppercase tracking-[0.32em] text-cyan-200">Pay</p>
+        <h1 className="mt-3 text-3xl font-semibold tracking-[0.04em] text-white">
           {creator.courseTitle || creator.displayName}
         </h1>
         {(creator.courseDescription || creator.bio) ? (
-          <p className="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-300">
             {creator.courseDescription || creator.bio}
           </p>
         ) : null}
+        <div className="mt-5 flex flex-wrap gap-2">
+          <span className="rounded-full border border-cyan-300/25 bg-cyan-300/10 px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-cyan-100">
+            Secure Paystack checkout
+          </span>
+          <span className="rounded-full border border-fuchsia-300/25 bg-fuchsia-300/10 px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-fuchsia-100">
+            NGN payment flow
+          </span>
+        </div>
         <div className="mt-8">
           <PayForm
             creator={{

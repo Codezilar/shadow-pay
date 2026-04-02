@@ -1,18 +1,21 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 function PaymentVerifier({ slug, reference }: { slug: string; reference: string }) {
+  const router = useRouter();
   const [status, setStatus] = useState<"loading" | "ok" | "fail">("loading");
   const [detail, setDetail] = useState<string | null>(null);
+  const [communityUrl, setCommunityUrl] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       const res = await fetch(`/api/paystack/verify?reference=${encodeURIComponent(reference)}`);
-      const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+      const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string; communityUrl?: string | null };
       if (cancelled) return;
       if (!res.ok) {
         setStatus("fail");
@@ -20,30 +23,44 @@ function PaymentVerifier({ slug, reference }: { slug: string; reference: string 
         return;
       }
       setStatus(data.ok ? "ok" : "fail");
+      setCommunityUrl(data.communityUrl ?? null);
+      if (data.ok && data.communityUrl) {
+        window.setTimeout(() => {
+          router.push(data.communityUrl!);
+        }, 1500);
+      }
     })();
     return () => {
       cancelled = true;
     };
-  }, [reference]);
+  }, [reference, router]);
 
   return (
-    <div className="mx-auto max-w-lg rounded-2xl border border-zinc-200 bg-white p-8 text-center shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-      {status === "loading" && <p className="text-sm text-zinc-600 dark:text-zinc-400">Confirming payment…</p>}
+    <div className="sci-panel mx-auto max-w-lg rounded-[30px] p-8 text-center">
+      {status === "loading" && <p className="text-sm text-slate-300">Confirming payment…</p>}
       {status === "ok" && (
         <>
-          <h1 className="text-lg font-semibold text-emerald-700 dark:text-emerald-400">Payment successful</h1>
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">Thank you. The creator has been notified via our records.</p>
+          <h1 className="text-lg font-semibold text-emerald-300">Payment successful</h1>
+          <p className="mt-2 text-sm text-slate-300">Thank you. Your student access has been provisioned for this course.</p>
+          {communityUrl ? (
+            <Link
+              href={communityUrl}
+              className="sci-button mt-5 inline-flex rounded-full px-5 py-3 text-sm font-semibold uppercase tracking-[0.18em]"
+            >
+              Enter course community
+            </Link>
+          ) : null}
         </>
       )}
       {status === "fail" && (
         <>
-          <h1 className="text-lg font-semibold text-red-700 dark:text-red-400">Payment not completed</h1>
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">{detail || "We could not confirm this charge."}</p>
+          <h1 className="text-lg font-semibold text-rose-300">Payment not completed</h1>
+          <p className="mt-2 text-sm text-slate-300">{detail || "We could not confirm this charge."}</p>
         </>
       )}
       <Link
         href={`/p/${slug}`}
-        className="mt-6 inline-block text-sm font-medium text-emerald-700 hover:underline dark:text-emerald-400"
+        className="mt-6 inline-block text-sm font-medium text-cyan-200 hover:text-cyan-100 hover:underline"
       >
         Back to creator page
       </Link>
@@ -57,12 +74,12 @@ export function PaymentComplete({ slug }: { slug: string }) {
 
   if (!reference) {
     return (
-      <div className="mx-auto max-w-lg rounded-2xl border border-zinc-200 bg-white p-8 text-center shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-        <h1 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">No reference</h1>
-        <p className="mt-2 text-sm text-zinc-500">Return from Paystack was missing a transaction reference.</p>
+      <div className="sci-panel mx-auto max-w-lg rounded-[30px] p-8 text-center">
+        <h1 className="text-lg font-semibold text-white">No reference</h1>
+        <p className="mt-2 text-sm text-slate-400">Return from Paystack was missing a transaction reference.</p>
         <Link
           href={`/p/${slug}`}
-          className="mt-6 inline-block text-sm font-medium text-emerald-700 hover:underline dark:text-emerald-400"
+          className="mt-6 inline-block text-sm font-medium text-cyan-200 hover:text-cyan-100 hover:underline"
         >
           Back to creator page
         </Link>

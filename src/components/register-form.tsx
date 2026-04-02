@@ -42,60 +42,61 @@ export function RegisterForm() {
   return (
     <form
       onSubmit={onSubmit}
-      className="flex w-full max-w-md flex-col gap-4 rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-950"
+      className="sci-panel flex w-full max-w-md flex-col gap-4 rounded-[30px] p-8"
     >
       <div>
-        <h1 className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">Apply as a creator</h1>
-        <p className="mt-1 text-sm text-zinc-500">
+        <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/80">Creator Onboarding</p>
+        <h1 className="mt-3 text-2xl font-semibold tracking-[0.05em] text-white">Apply as a creator</h1>
+        <p className="mt-2 text-sm text-slate-400">
           Create your account. An admin will approve your profile before your payment link goes live.
         </p>
       </div>
       {error && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300" role="alert">
+        <p className="rounded-2xl border border-rose-400/25 bg-rose-400/10 px-4 py-3 text-sm text-rose-200" role="alert">
           {error}
         </p>
       )}
       <label className="flex flex-col gap-1 text-sm">
-        <span className="font-medium text-zinc-700 dark:text-zinc-300">Public display name</span>
+        <span className="font-medium text-slate-200">Public display name</span>
         <input
           required
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
-          className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-zinc-900 outline-none ring-emerald-500/30 focus:border-emerald-500 focus:ring-4 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+          className="sci-input rounded-2xl px-4 py-3"
         />
       </label>
       <label className="flex flex-col gap-1 text-sm">
-        <span className="font-medium text-zinc-700 dark:text-zinc-300">Payment link slug</span>
+        <span className="font-medium text-slate-200">Payment link slug</span>
         <input
           required
           placeholder="e.g. ada-digital"
           value={slug}
           onChange={(e) => setSlug(e.target.value.toLowerCase())}
-          className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 font-mono text-sm text-zinc-900 outline-none ring-emerald-500/30 focus:border-emerald-500 focus:ring-4 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+          className="sci-input rounded-2xl px-4 py-3 font-mono text-sm"
         />
-        <span className="text-xs text-zinc-500">Your link: /p/{slug || "your-slug"}</span>
+        <span className="text-xs text-slate-500">Your link: /p/{slug || "your-slug"}</span>
       </label>
       <label className="flex flex-col gap-1 text-sm">
-        <span className="font-medium text-zinc-700 dark:text-zinc-300">Your name (optional)</span>
+        <span className="font-medium text-slate-200">Your name (optional)</span>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-zinc-900 outline-none ring-emerald-500/30 focus:border-emerald-500 focus:ring-4 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+          className="sci-input rounded-2xl px-4 py-3"
         />
       </label>
       <label className="flex flex-col gap-1 text-sm">
-        <span className="font-medium text-zinc-700 dark:text-zinc-300">Email</span>
+        <span className="font-medium text-slate-200">Email</span>
         <input
           required
           type="email"
           autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-zinc-900 outline-none ring-emerald-500/30 focus:border-emerald-500 focus:ring-4 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+          className="sci-input rounded-2xl px-4 py-3"
         />
       </label>
       <label className="flex flex-col gap-1 text-sm">
-        <span className="font-medium text-zinc-700 dark:text-zinc-300">Password (min 8 characters)</span>
+        <span className="font-medium text-slate-200">Password (min 8 characters)</span>
         <input
           required
           minLength={8}
@@ -103,19 +104,19 @@ export function RegisterForm() {
           autoComplete="new-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-2 text-zinc-900 outline-none ring-emerald-500/30 focus:border-emerald-500 focus:ring-4 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+          className="sci-input rounded-2xl px-4 py-3"
         />
       </label>
       <button
         type="submit"
         disabled={loading}
-        className="mt-2 rounded-xl bg-emerald-600 py-2.5 text-sm font-semibold text-white hover:bg-emerald-500 disabled:opacity-60"
+        className="sci-button mt-2 rounded-full py-3 text-sm font-semibold uppercase tracking-[0.18em] disabled:opacity-60"
       >
         {loading ? "Creating account…" : "Create account"}
       </button>
-      <p className="text-center text-sm text-zinc-500">
+      <p className="text-center text-sm text-slate-400">
         Already have an account?{" "}
-        <Link href="/login" className="font-medium text-emerald-700 hover:underline dark:text-emerald-400">
+        <Link href="/login" className="font-medium text-cyan-200 hover:text-cyan-100 hover:underline">
           Log in
         </Link>
       </p>

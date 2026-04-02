@@ -9,29 +9,37 @@ export function HeaderAuth() {
   return (
     <>
       {session?.user?.role === "CREATOR" && (
-        <Link href="/dashboard" className="hover:text-zinc-900 dark:hover:text-zinc-100">
+        <Link href="/dashboard" className="hover:text-cyan-200">
           Dashboard
         </Link>
       )}
       {session?.user?.role === "ADMIN" && (
-        <Link href="/admin" className="hover:text-zinc-900 dark:hover:text-zinc-100">
-          Admin
-        </Link>
+        <>
+          <Link href="/admin" className="hover:text-cyan-200">
+            Creators
+          </Link>
+          <Link href="/admin/communities" className="hover:text-cyan-200">
+            Communities
+          </Link>
+          <Link href="/admin/withdrawals" className="hover:text-cyan-200">
+            Withdrawals
+          </Link>
+        </>
       )}
       {!session?.user ? (
         <Link
           href="/login"
-          className="rounded-full bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-zinc-800 dark:bg-emerald-600 dark:hover:bg-emerald-500"
+          className="sci-button rounded-full px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.18em]"
         >
           Log in
         </Link>
       ) : (
         <div className="flex items-center gap-3">
-          <span className="hidden max-w-[140px] truncate text-xs text-zinc-500 sm:inline">{session.user.email}</span>
+          <span className="hidden max-w-[160px] truncate text-xs text-slate-400 sm:inline">{session.user.email}</span>
           <button
             type="button"
             onClick={() => signOut({ callbackUrl: "/" })}
-            className="rounded-full border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-800 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900"
+            className="sci-button-secondary rounded-full px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.18em]"
           >
             Sign out
           </button>

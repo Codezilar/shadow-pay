@@ -8,7 +8,7 @@ export default async function PaymentCompletePage({ params }: Props) {
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center px-4 py-16">
-      <Suspense fallback={<p className="text-sm text-zinc-500">Loading…</p>}>
+      <Suspense fallback={<p className="text-sm text-slate-400">Loading…</p>}>
         <PaymentComplete slug={slug} />
       </Suspense>
     </div>

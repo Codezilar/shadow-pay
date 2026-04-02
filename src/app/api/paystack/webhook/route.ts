@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { ensureEnrollmentForReference } from "@/lib/community";
 import { getPaystackSecretKey } from "@/lib/paystack";
 
 export const runtime = "nodejs";
@@ -45,6 +46,10 @@ export async function POST(req: Request) {
     where: { paystackReference: reference },
     data: { status },
   });
+
+  if (status === "success") {
+    await ensureEnrollmentForReference(reference);
+  }
 
   return NextResponse.json({ received: true });
 }

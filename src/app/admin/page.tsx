@@ -1,5 +1,7 @@
 import { auth } from "@/auth";
 import { AdminCreatorsPanel } from "@/components/admin-creators-panel";
+import { AdminSectionNav } from "@/components/admin-section-nav";
+import { getCreatorFinancialSummary } from "@/lib/creator-finance";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 
@@ -23,30 +25,58 @@ export default async function AdminPage() {
     _count: true,
   });
 
+  const [enrollmentCounts, withdrawalRequests] = await Promise.all([
+    prisma.studentEnrollment.groupBy({
+      by: ["creatorProfileId"],
+      _count: true,
+    }),
+    prisma.withdrawalRequest.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 100,
+    }),
+  ]);
+
+  const finances = await Promise.all(creators.map((creator) => getCreatorFinancialSummary(creator.id)));
+  const enrollmentCountMap = new Map(enrollmentCounts.map((entry) => [entry.creatorProfileId, entry._count]));
+
   return (
-    <AdminCreatorsPanel
-      stats={{
-        totalCreators: creators.length,
-        approvedCreators: creators.filter((c) => c.approved).length,
-        successfulTransactions: successful._count,
-        grossKobo: successful._sum.amountKobo ?? 0,
-        creatorPayoutKobo: successful._sum.creatorAmountKobo ?? 0,
-        platformRevenueKobo: successful._sum.platformAmountKobo ?? 0,
-      }}
-      creators={creators.map((c) => ({
-        id: c.id,
-        slug: c.slug,
-        displayName: c.displayName,
-        bio: c.bio,
-        approved: c.approved,
-        creatorSharePercent: c.creatorSharePercent,
-        paystackSplitCode: c.paystackSplitCode,
-        paystackSubaccountCode: c.paystackSubaccountCode,
-        paymentAmounts: JSON.parse(c.paymentAmountsJson || "[]"),
-        courseTitle: c.courseTitle,
-        courseDescription: c.courseDescription,
-        user: { email: c.user.email, name: c.user.name },
-      }))}
-    />
+    <div className="space-y-4">
+      <AdminSectionNav />
+      <AdminCreatorsPanel
+        stats={{
+          totalCreators: creators.length,
+          approvedCreators: creators.filter((c) => c.approved).length,
+          successfulTransactions: successful._count,
+          grossKobo: successful._sum.amountKobo ?? 0,
+          creatorPayoutKobo: successful._sum.creatorAmountKobo ?? 0,
+          platformRevenueKobo: successful._sum.platformAmountKobo ?? 0,
+        }}
+        creators={creators.map((c, index) => ({
+          id: c.id,
+          slug: c.slug,
+          displayName: c.displayName,
+          bio: c.bio,
+          approved: c.approved,
+          creatorSharePercent: c.creatorSharePercent,
+          paystackSplitCode: c.paystackSplitCode,
+          paystackSubaccountCode: c.paystackSubaccountCode,
+          paymentAmounts: JSON.parse(c.paymentAmountsJson || "[]"),
+          courseTitle: c.courseTitle,
+          courseDescription: c.courseDescription,
+          user: { email: c.user.email, name: c.user.name },
+          studentCount: enrollmentCountMap.get(c.id) ?? 0,
+          availableBalanceKobo: finances[index]?.availableKobo ?? 0,
+          withdrawals: withdrawalRequests
+            .filter((request) => request.creatorProfileId === c.id)
+            .map((request) => ({
+              id: request.id,
+              amountKobo: request.amountKobo,
+              status: request.status,
+              adminNote: request.adminNote,
+              createdAt: request.createdAt.toISOString(),
+            })),
+        }))}
+      />
+    </div>
   );
 }

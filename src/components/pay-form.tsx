@@ -63,17 +63,17 @@ export function PayForm({ creator }: { creator: Creator }) {
     <form onSubmit={pay} className="flex flex-col gap-5">
       {hasPresetAmounts ? (
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Course Price (NGN)</label>
+          <label className="text-sm font-medium text-slate-200">Course Price (NGN)</label>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {creator.paymentAmounts!.map((preset) => (
               <button
                 key={preset}
                 type="button"
                 onClick={() => setAmount(preset.toString())}
-                className={`rounded-lg border-2 px-3 py-2.5 text-sm font-semibold transition-colors ${
+                className={`rounded-2xl border px-3 py-3 text-sm font-semibold ${
                   Number(amount) === preset
-                    ? "border-emerald-500 bg-emerald-50 text-emerald-900 dark:border-emerald-400 dark:bg-emerald-950 dark:text-emerald-100"
-                    : "border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50 dark:hover:bg-zinc-800"
+                    ? "border-cyan-300/55 bg-cyan-300/12 text-cyan-100 shadow-[0_0_24px_rgba(34,211,238,0.18)]"
+                    : "border-white/12 bg-white/5 text-slate-200 hover:bg-white/8"
                 }`}
               >
                 {formatNgnFromKobo(preset * 100)}
@@ -83,18 +83,18 @@ export function PayForm({ creator }: { creator: Creator }) {
         </div>
       ) : (
         <label className="flex flex-col gap-1 text-sm">
-          <span className="font-medium text-zinc-700 dark:text-zinc-300">Amount (NGN)</span>
+          <span className="font-medium text-slate-200">Amount (NGN)</span>
           <input
             required
             inputMode="decimal"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-lg font-medium text-zinc-900 outline-none ring-emerald-500/30 focus:border-emerald-500 focus:ring-4 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+            className="sci-input rounded-2xl px-4 py-3 text-lg font-medium"
           />
         </label>
       )}
       <label className="flex flex-col gap-1 text-sm">
-        <span className="font-medium text-zinc-700 dark:text-zinc-300">Your email</span>
+        <span className="font-medium text-slate-200">Your email</span>
         <input
           required
           type="email"
@@ -102,31 +102,33 @@ export function PayForm({ creator }: { creator: Creator }) {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@example.com"
-          className="rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-zinc-900 outline-none ring-emerald-500/30 focus:border-emerald-500 focus:ring-4 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
+          className="sci-input rounded-2xl px-4 py-3"
         />
       </label>
       {amountKobo >= 100_00 && (
-        <div className="rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-zinc-400">
-          <p className="font-medium text-zinc-800 dark:text-zinc-200">Split preview (agreement on file)</p>
-          <p className="mt-2 text-xs text-zinc-500">
-            Actual settlement follows your Paystack split / subaccount setup. This preview reflects the percentages stored
-            for this creator.
+        <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-sm text-slate-300">
+          <p className="font-medium text-white">Course Access Notice</p>
+          <p className="mt-2 text-xs text-slate-400">
+            You’ll gain access to the course community after completing your payment. Ensure your transaction is successful to unlock full participation.
+          </p>
+          <p className="mt-2 text-xs text-slate-300">
+            Admin users can access all communities directly, regardless of enrollment.
           </p>
         </div>
       )}
       {error && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300" role="alert">
+        <p className="rounded-2xl border border-rose-400/25 bg-rose-400/10 px-4 py-3 text-sm text-rose-200" role="alert">
           {error}
         </p>
       )}
       <button
         type="submit"
         disabled={loading}
-        className="rounded-xl bg-emerald-600 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 disabled:opacity-60"
+        className="sci-button rounded-full py-3 text-sm font-semibold uppercase tracking-[0.18em] disabled:opacity-60"
       >
         {loading ? "Redirecting to Paystack…" : "Pay with Paystack"}
       </button>
-      <p className="text-center text-xs text-zinc-500">Card, bank transfer, USSD, and other Paystack channels.</p>
+      <p className="text-center text-xs text-slate-500">Card, bank transfer, USSD, and other Paystack channels.</p>
     </form>
   );
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { ensureEnrollmentForReference } from "@/lib/community";
 import { paystackVerify } from "@/lib/paystack";
 
 export async function GET(req: Request) {
@@ -22,10 +23,13 @@ export async function GET(req: Request) {
     data: { status: ok ? "success" : "failed" },
   });
 
+  const enrollment = ok ? await ensureEnrollmentForReference(reference) : null;
+
   return NextResponse.json({
     ok,
     amountKobo: data.amount,
     currency: data.currency,
     customerEmail: data.customer?.email,
+    communityUrl: enrollment ? `/community/${enrollment.creatorSlug}?access=${enrollment.token}` : null,
   });
 }

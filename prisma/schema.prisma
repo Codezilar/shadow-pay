@@ -10,6 +10,13 @@ datasource db {
 enum Role {
   ADMIN
   CREATOR
+  STUDENT
+}
+
+enum WithdrawalStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
 }
 
 model User {
@@ -21,7 +28,12 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  creatorProfile CreatorProfile?
+  creatorProfile     CreatorProfile?
+  studentEnrollments StudentEnrollment[]
+  communityMessages  CommunityMessage[]
+  communityComments  CommunityComment[]
+  communityMessageLikes CommunityMessageLike[]
+  communityCommentLikes CommunityCommentLike[]
 }
 
 model CreatorProfile {
@@ -56,7 +68,11 @@ model CreatorProfile {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  transactions Transaction[]
+  transactions      Transaction[]
+  studentEnrollments StudentEnrollment[]
+  withdrawalRequests WithdrawalRequest[]
+  communityMessages  CommunityMessage[]
+  communityComments  CommunityComment[]
 }
 
 model Transaction {
@@ -79,4 +95,134 @@ model Transaction {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model StudentEnrollment {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  creatorProfileId String
+  creatorProfile   CreatorProfile @relation(fields: [creatorProfileId], references: [id], onDelete: Cascade)
+
+  customerEmail String
+  lastReference String
+  lastPaidAt    DateTime @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accessTokens      CommunityAccessToken[]
+  communityMessages CommunityMessage[]
+  communityComments CommunityComment[]
+
+  @@unique([userId, creatorProfileId])
+}
+
+model CommunityAccessToken {
+  id String @id @default(cuid())
+
+  token String @unique
+
+  enrollmentId String
+  enrollment   StudentEnrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  expiresAt DateTime?
+  createdAt DateTime @default(now())
+}
+
+model CommunityMessage {
+  id String @id @default(cuid())
+
+  creatorProfileId String
+  creatorProfile   CreatorProfile @relation(fields: [creatorProfileId], references: [id], onDelete: Cascade)
+
+  authorUserId String?
+  authorUser   User? @relation(fields: [authorUserId], references: [id], onDelete: SetNull)
+
+  authorEnrollmentId String?
+  authorEnrollment   StudentEnrollment? @relation(fields: [authorEnrollmentId], references: [id], onDelete: SetNull)
+
+  authorName String
+  authorRole Role
+  body       String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  comments CommunityComment[]
+  likes    CommunityMessageLike[]
+}
+
+model CommunityComment {
+  id String @id @default(cuid())
+
+  creatorProfileId String
+  creatorProfile   CreatorProfile @relation(fields: [creatorProfileId], references: [id], onDelete: Cascade)
+
+  messageId String
+  message   CommunityMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  parentId String?
+  parent   CommunityComment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  CommunityComment[] @relation("CommentReplies")
+
+  authorUserId String?
+  authorUser   User? @relation(fields: [authorUserId], references: [id], onDelete: SetNull)
+
+  authorEnrollmentId String?
+  authorEnrollment   StudentEnrollment? @relation(fields: [authorEnrollmentId], references: [id], onDelete: SetNull)
+
+  authorName String
+  authorRole Role
+  body       String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  likes CommunityCommentLike[]
+}
+
+model CommunityMessageLike {
+  id String @id @default(cuid())
+
+  messageId String
+  message   CommunityMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([messageId, userId])
+}
+
+model CommunityCommentLike {
+  id String @id @default(cuid())
+
+  commentId String
+  comment   CommunityComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([commentId, userId])
+}
+
+model WithdrawalRequest {
+  id String @id @default(cuid())
+
+  creatorProfileId String
+  creatorProfile   CreatorProfile @relation(fields: [creatorProfileId], references: [id], onDelete: Cascade)
+
+  amountKobo Int
+  status     WithdrawalStatus @default(PENDING)
+  adminNote  String           @default("")
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  processedAt DateTime?
 }
