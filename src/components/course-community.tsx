@@ -404,8 +404,6 @@ export function CourseCommunity({
                           {message.comments.map((comment) => (
                             <CommentThread
                               key={comment.id}
-                              slug={slug}
-                              accessToken={accessToken}
                               messageId={message.id}
                               comment={comment}
                               depth={0}

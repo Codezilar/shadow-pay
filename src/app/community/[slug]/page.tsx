@@ -97,6 +97,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
             createdAt: reply.createdAt.toISOString(),
             likesCount: reply.likes.length,
             viewerHasLiked: reply.likes.some((like) => like.userId === accessResult.viewer.userId),
+            replies: [],
           })),
         })),
       }))}
