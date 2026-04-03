@@ -31,10 +31,10 @@ export type AdminCreatorRow = {
 };
 
 const fieldClassName =
-  "mt-1 rounded-2xl border border-white/12 bg-white/6 px-4 py-3 text-[15px] text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] outline-none transition placeholder:text-slate-500 focus:border-cyan-300/70 focus:bg-white/10 focus:ring-2 focus:ring-cyan-400/30";
+  "mt-1 rounded-2xl border border-white/12 bg-white/6 px-4 py-4 text-[14px] text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] outline-none transition placeholder:text-slate-500 focus:border-cyan-300/70 focus:bg-white/10 focus:ring-2 focus:ring-cyan-400/30";
 
 const sectionClassName =
-  "rounded-[28px] border border-white/10 bg-slate-950/45 p-5 shadow-[0_20px_60px_rgba(5,10,30,0.45),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl";
+  "rounded-[28px] border border-white/10 bg-slate-950/45 p-4 shadow-[0_20px_60px_rgba(5,10,30,0.45),inset_0_1px_0_rgba(255,255,255,0.04)] backdrop-blur-xl";
 
 function formatNgnFromKobo(kobo: number) {
   return new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN" }).format(kobo / 100);
@@ -84,110 +84,110 @@ export function AdminCreatorsPanel({
       <div className="absolute -left-24 top-28 h-64 w-64 rounded-full bg-cyan-400/20 blur-3xl" />
       <div className="absolute right-0 top-12 h-72 w-72 rounded-full bg-fuchsia-500/20 blur-3xl" />
 
-      <div className="relative mx-auto max-w-7xl space-y-6 px-4 py-10 sm:px-6 lg:px-8">
+      <div className="relative mx-auto max-w-7xl space-y-5 px-4 py-6 sm:space-y-6 sm:px-6 sm:py-10 lg:px-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
-            <p className="text-xs font-medium uppercase tracking-[0.38em] text-cyan-300/80">Orbital Creator Command</p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-[0.08em] text-white sm:text-4xl">
+            <p className="text-[10px] font-medium uppercase tracking-[0.38em] text-cyan-300/80 sm:text-xs">Orbital Creator Command</p>
+            <h1 className="mt-2 text-2xl font-semibold tracking-[0.08em] text-white sm:mt-3 sm:text-3xl md:text-4xl">
               Admin control room for creator payouts
             </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300 sm:mt-3 sm:text-base">
               Review identities, calibrate revenue splits, and manage course payment systems from a unified sci-fi
               console built for quick decisions.
             </p>
           </div>
           <a
             href="/api/admin/transactions.csv"
-            className="inline-flex w-fit items-center justify-center rounded-full border border-cyan-300/40 bg-cyan-300/10 px-5 py-3 text-sm font-semibold text-cyan-100 shadow-[0_0_30px_rgba(34,211,238,0.2)] transition hover:border-cyan-200/70 hover:bg-cyan-300/16"
+            className="inline-flex w-fit items-center justify-center rounded-full border border-cyan-300/40 bg-cyan-300/10 px-4 py-2.5 text-xs font-semibold text-cyan-100 shadow-[0_0_30px_rgba(34,211,238,0.2)] transition hover:border-cyan-200/70 hover:bg-cyan-300/16 sm:px-5 sm:py-3 sm:text-sm"
           >
             Export transaction telemetry
           </a>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
           <div className={`${sectionClassName} relative overflow-hidden`}>
-            <div className="absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/70 to-transparent" />
-            <p className="text-[11px] uppercase tracking-[0.34em] text-cyan-200/70">Creator clearance</p>
-            <p className="mt-4 text-3xl font-semibold text-white">{approvalRate}%</p>
-            <p className="mt-2 text-sm text-slate-300">
+            <div className="absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/70 to-transparent sm:inset-x-6" />
+            <p className="text-[10px] uppercase tracking-[0.34em] text-cyan-200/70 sm:text-[11px]">Creator clearance</p>
+            <p className="mt-3 text-2xl font-semibold text-white sm:mt-4 sm:text-3xl">{approvalRate}%</p>
+            <p className="mt-1 text-xs text-slate-300 sm:mt-2 sm:text-sm">
               {stats.approvedCreators} of {stats.totalCreators} creator nodes approved
             </p>
           </div>
           <div className={`${sectionClassName} relative overflow-hidden`}>
-            <div className="absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-fuchsia-300/70 to-transparent" />
-            <p className="text-[11px] uppercase tracking-[0.34em] text-fuchsia-200/70">Gross volume</p>
-            <p className="mt-4 text-3xl font-semibold text-white">{formatNgnFromKobo(stats.grossKobo)}</p>
-            <p className="mt-2 text-sm text-slate-300">{stats.successfulTransactions} successful transactions logged</p>
+            <div className="absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-fuchsia-300/70 to-transparent sm:inset-x-6" />
+            <p className="text-[10px] uppercase tracking-[0.34em] text-fuchsia-200/70 sm:text-[11px]">Gross volume</p>
+            <p className="mt-3 text-2xl font-semibold text-white sm:mt-4 sm:text-3xl">{formatNgnFromKobo(stats.grossKobo)}</p>
+            <p className="mt-1 text-xs text-slate-300 sm:mt-2 sm:text-sm">{stats.successfulTransactions} successful transactions logged</p>
           </div>
           <div className={`${sectionClassName} relative overflow-hidden`}>
-            <div className="absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-sky-300/70 to-transparent" />
-            <p className="text-[11px] uppercase tracking-[0.34em] text-sky-200/70">Creator payout stream</p>
-            <p className="mt-4 text-3xl font-semibold text-white">{formatNgnFromKobo(stats.creatorPayoutKobo)}</p>
-            <p className="mt-2 text-sm text-slate-300">Total routed to creators</p>
+            <div className="absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-sky-300/70 to-transparent sm:inset-x-6" />
+            <p className="text-[10px] uppercase tracking-[0.34em] text-sky-200/70 sm:text-[11px]">Creator payout stream</p>
+            <p className="mt-3 text-2xl font-semibold text-white sm:mt-4 sm:text-3xl">{formatNgnFromKobo(stats.creatorPayoutKobo)}</p>
+            <p className="mt-1 text-xs text-slate-300 sm:mt-2 sm:text-sm">Total routed to creators</p>
           </div>
           <div className={`${sectionClassName} relative overflow-hidden`}>
-            <div className="absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-violet-300/70 to-transparent" />
-            <p className="text-[11px] uppercase tracking-[0.34em] text-violet-200/70">Platform reserve</p>
-            <p className="mt-4 text-3xl font-semibold text-white">{formatNgnFromKobo(stats.platformRevenueKobo)}</p>
-            <p className="mt-2 text-sm text-slate-300">Retained by the platform</p>
+            <div className="absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-violet-300/70 to-transparent sm:inset-x-6" />
+            <p className="text-[10px] uppercase tracking-[0.34em] text-violet-200/70 sm:text-[11px]">Platform reserve</p>
+            <p className="mt-3 text-2xl font-semibold text-white sm:mt-4 sm:text-3xl">{formatNgnFromKobo(stats.platformRevenueKobo)}</p>
+            <p className="mt-1 text-xs text-slate-300 sm:mt-2 sm:text-sm">Retained by the platform</p>
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[340px_minmax(0,1fr)]">
-          <aside className={`${sectionClassName} p-3`}>
-            <div className="rounded-[24px] border border-white/10 bg-black/20 px-4 py-4">
-              <div className="flex items-start justify-between gap-3 border-b border-white/10 pb-4">
+        <div className="grid gap-5 lg:grid-cols-[300px_minmax(0,1fr)] xl:gap-6">
+          <aside className={`${sectionClassName} p-2 sm:p-3`}>
+            <div className="rounded-[24px] border border-white/10 bg-black/20 px-3 py-3 sm:px-4 sm:py-4">
+              <div className="flex items-start justify-between gap-2 border-b border-white/10 pb-3 sm:gap-3 sm:pb-4">
                 <div>
-                  <h2 className="text-sm font-semibold uppercase tracking-[0.3em] text-cyan-200/80">Creator profiles</h2>
-                  <p className="mt-2 text-sm leading-6 text-slate-400">
+                  <h2 className="text-xs font-semibold uppercase tracking-[0.3em] text-cyan-200/80 sm:text-sm">Creator profiles</h2>
+                  <p className="mt-1 text-xs leading-5 text-slate-400 sm:mt-2 sm:text-sm sm:leading-6">
                     Select a creator signal to open the full configuration deck.
                   </p>
                 </div>
-                <div className="rounded-full border border-cyan-300/30 bg-cyan-300/10 px-3 py-1 text-[11px] font-medium tracking-[0.24em] text-cyan-100">
+                <div className="shrink-0 rounded-full border border-cyan-300/30 bg-cyan-300/10 px-2 py-0.5 text-[9px] font-medium tracking-[0.24em] text-cyan-100 sm:px-3 sm:py-1 sm:text-[11px]">
                   {creators.length} online
                 </div>
               </div>
-              <div className="mt-4 space-y-2">
-            {creators.map((creator) => {
-              const isActive = creator.id === selectedCreator?.id;
+              <div className="mt-3 space-y-2 sm:mt-4">
+                {creators.map((creator) => {
+                  const isActive = creator.id === selectedCreator?.id;
 
-              return (
-                <button
-                  key={creator.id}
-                  type="button"
-                  onClick={() => setSelectedCreatorId(creator.id)}
-                  className={`group flex w-full items-start gap-3 rounded-[22px] border px-4 py-3 text-left transition ${
-                    isActive
-                      ? "border-cyan-300/50 bg-cyan-300/12 shadow-[0_0_28px_rgba(34,211,238,0.16)] ring-1 ring-cyan-300/20"
-                      : "border-white/0 bg-white/4 hover:border-white/12 hover:bg-white/8"
-                  }`}
-                >
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/12 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.28),rgba(18,24,48,0.92))] text-sm font-semibold text-cyan-100 shadow-[0_0_18px_rgba(34,211,238,0.16)]">
-                    {getCreatorInitials(creator)}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="truncate text-sm font-semibold text-slate-100">{getCreatorLabel(creator)}</p>
-                      <span
-                        className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] ${
-                          creator.approved
-                            ? "border-emerald-400/25 bg-emerald-400/12 text-emerald-200"
-                            : "border-amber-400/25 bg-amber-400/12 text-amber-200"
-                        }`}
-                      >
-                        {creator.approved ? "Approved" : "Pending"}
-                      </span>
-                    </div>
-                    <p className="mt-1 truncate text-xs text-slate-400">{creator.user.email}</p>
-                    <p className="mt-2 text-xs text-slate-500">{creator.studentCount} students · {formatNgnFromKobo(creator.availableBalanceKobo)} free</p>
-                    <div className="mt-2 flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] text-slate-500">
-                      <span className="h-1.5 w-1.5 rounded-full bg-cyan-300/70 transition group-hover:bg-cyan-200" />
-                      /p/{creator.slug}
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
+                  return (
+                    <button
+                      key={creator.id}
+                      type="button"
+                      onClick={() => setSelectedCreatorId(creator.id)}
+                      className={`group flex w-full items-start gap-2 rounded-[22px] border p-2 text-left transition sm:gap-3 sm:p-3 ${
+                        isActive
+                          ? "border-cyan-300/50 bg-cyan-300/12 shadow-[0_0_28px_rgba(34,211,238,0.16)] ring-1 ring-cyan-300/20"
+                          : "border-white/0 bg-white/4 hover:border-white/12 hover:bg-white/8"
+                      }`}
+                    >
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/12 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.28),rgba(18,24,48,0.92))] text-xs font-semibold text-cyan-100 shadow-[0_0_18px_rgba(34,211,238,0.16)] sm:h-11 sm:w-11 sm:text-sm">
+                        {getCreatorInitials(creator)}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                          <p className="truncate text-sm font-semibold text-slate-100">{getCreatorLabel(creator)}</p>
+                          <span
+                            className={`shrink-0 rounded-full border px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.2em] sm:px-2.5 sm:py-1 sm:text-[10px] ${
+                              creator.approved
+                                ? "border-emerald-400/25 bg-emerald-400/12 text-emerald-200"
+                                : "border-amber-400/25 bg-amber-400/12 text-amber-200"
+                            }`}
+                          >
+                            {creator.approved ? "Approved" : "Pending"}
+                          </span>
+                        </div>
+                        <p className="mt-0.5 truncate text-xs text-slate-400 sm:mt-1">{creator.user.email}</p>
+                        <p className="mt-1 text-xs text-slate-500 sm:mt-2">{creator.studentCount} students · {formatNgnFromKobo(creator.availableBalanceKobo)} free</p>
+                        <div className="mt-1 flex items-center gap-1.5 text-[10px] uppercase tracking-[0.22em] text-slate-500 sm:mt-2 sm:gap-2 sm:text-[11px]">
+                          <span className="h-1.5 w-1.5 rounded-full bg-cyan-300/70 transition group-hover:bg-cyan-200" />
+                          /p/{creator.slug}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
                 {creators.length === 0 && <p className="px-2 py-4 text-sm text-slate-400">No creators detected yet.</p>}
               </div>
             </div>
@@ -196,7 +196,7 @@ export function AdminCreatorsPanel({
             {selectedCreator ? (
               <AdminCreatorCard key={selectedCreator.id} initial={selectedCreator} />
             ) : (
-              <div className={`${sectionClassName} border-dashed p-8 text-sm text-slate-400`}>
+              <div className={`${sectionClassName} border-dashed p-6 text-sm text-slate-400 sm:p-8`}>
                 Select a creator profile to begin editing.
               </div>
             )}
@@ -279,45 +279,45 @@ function AdminCreatorCard({ initial }: { initial: AdminCreatorRow }) {
   return (
     <form
       onSubmit={save}
-      className={`${sectionClassName} overflow-hidden p-6 sm:p-7`}
+      className={`${sectionClassName} overflow-hidden p-6 sm:p-5 md:p-7`}
     >
-      <div className="flex flex-col gap-5 border-b border-white/10 pb-6 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex flex-col gap-4 border-b border-white/10 pb-5 sm:flex-row sm:items-start sm:justify-between sm:gap-5 sm:pb-6">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.36em] text-cyan-300/75">Selected profile</p>
-          <h2 className="mt-3 text-2xl font-semibold tracking-[0.04em] text-white">{getCreatorLabel(row)}</h2>
-          <p className="mt-2 text-sm text-slate-400">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.36em] text-cyan-300/75 sm:text-xs">Selected profile</p>
+          <h2 className="mt-2 text-xl font-semibold tracking-[0.04em] text-white sm:mt-3 sm:text-2xl">{getCreatorLabel(row)}</h2>
+          <p className="mt-1 text-xs text-slate-400 sm:mt-2 sm:text-sm">
             {row.user.email} {row.user.name ? `· ${row.displayName}` : ""} · /p/{row.slug}
           </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <span className="rounded-full border border-cyan-300/25 bg-cyan-300/10 px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-cyan-100">
+          <div className="mt-3 flex flex-wrap gap-1.5 sm:mt-4 sm:gap-2">
+            <span className="rounded-full border border-cyan-300/25 bg-cyan-300/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.22em] text-cyan-100 sm:px-3 sm:py-1 sm:text-[11px]">
               Share {row.creatorSharePercent}%
             </span>
-            <span className="rounded-full border border-fuchsia-300/25 bg-fuchsia-300/10 px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-fuchsia-100">
+            <span className="rounded-full border border-fuchsia-300/25 bg-fuchsia-300/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.22em] text-fuchsia-100 sm:px-3 sm:py-1 sm:text-[11px]">
               {paymentPreview}
             </span>
-            <span className="rounded-full border border-emerald-300/25 bg-emerald-300/10 px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-emerald-100">
+            <span className="rounded-full border border-emerald-300/25 bg-emerald-300/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.22em] text-emerald-100 sm:px-3 sm:py-1 sm:text-[11px]">
               {row.studentCount} students
             </span>
-            <span className="rounded-full border border-violet-300/25 bg-violet-300/10 px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-violet-100">
+            <span className="rounded-full border border-violet-300/25 bg-violet-300/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.22em] text-violet-100 sm:px-3 sm:py-1 sm:text-[11px]">
               Available {formatNgnFromKobo(row.availableBalanceKobo)}
             </span>
           </div>
-          <div className="mt-4 flex flex-wrap gap-3">
+          <div className="mt-3 flex flex-wrap gap-2 sm:mt-4 sm:gap-3">
             <Link
               href={`/community/${row.slug}`}
-              className="inline-flex rounded-full border border-cyan-300/35 bg-cyan-300/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-100"
+              className="inline-flex rounded-full border border-cyan-300/35 bg-cyan-300/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100 sm:px-4 sm:py-2 sm:text-xs"
             >
               Open community
             </Link>
             <Link
               href="/admin/communities"
-              className="inline-flex rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-200"
+              className="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200 sm:px-4 sm:py-2 sm:text-xs"
             >
               Community hub
             </Link>
           </div>
         </div>
-        <label className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/6 px-4 py-3 text-sm text-slate-200">
+        <label className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/6 px-3 py-2 text-sm text-slate-200 sm:gap-3 sm:px-4 sm:py-3">
           <input
             type="checkbox"
             checked={row.approved}
@@ -328,126 +328,126 @@ function AdminCreatorCard({ initial }: { initial: AdminCreatorRow }) {
         </label>
       </div>
 
-      {msg && <p className="mt-4 text-sm text-emerald-300">{msg}</p>}
+      {msg && <p className="mt-3 text-sm text-emerald-300 sm:mt-4">{msg}</p>}
       {err && (
-        <p className="mt-4 text-sm text-rose-300" role="alert">
+        <p className="mt-3 text-sm text-rose-300 sm:mt-4" role="alert">
           {err}
         </p>
       )}
 
-      <div className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+      <div className="mt-5 grid gap-4 lg:grid-cols-1 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
         <div className="space-y-4">
           <div className={sectionClassName}>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-cyan-200/75">Identity matrix</p>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        <label className="flex flex-col gap-1 text-sm">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-cyan-200/75 sm:text-[11px]">Identity matrix</p>
+            <div className="mt-3 grid gap-3 sm:mt-4 sm:grid-cols-2 sm:gap-4">
+              <label className="flex flex-col gap-1 text-sm">
                 <span className="font-medium text-slate-200">Display name</span>
-          <input
-            value={row.displayName}
-            onChange={(e) => setRow({ ...row, displayName: e.target.value })}
+                <input
+                  value={row.displayName}
+                  onChange={(e) => setRow({ ...row, displayName: e.target.value })}
                   className={fieldClassName}
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-sm">
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-sm">
                 <span className="font-medium text-slate-200">Creator share (%)</span>
-          <input
-            type="number"
-            min={0}
-            max={100}
-            value={row.creatorSharePercent}
-            onChange={(e) => setRow({ ...row, creatorSharePercent: Number(e.target.value) })}
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={row.creatorSharePercent}
+                  onChange={(e) => setRow({ ...row, creatorSharePercent: Number(e.target.value) })}
                   className={fieldClassName}
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-sm sm:col-span-2">
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-sm sm:col-span-2">
                 <span className="font-medium text-slate-200">Course title</span>
-          <input
-            value={row.courseTitle}
-            onChange={(e) => setRow({ ...row, courseTitle: e.target.value })}
-            placeholder="e.g., Complete Web Development Course"
+                <input
+                  value={row.courseTitle}
+                  onChange={(e) => setRow({ ...row, courseTitle: e.target.value })}
+                  placeholder="e.g., Complete Web Development Course"
                   className={fieldClassName}
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-sm sm:col-span-2">
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-sm sm:col-span-2">
                 <span className="font-medium text-slate-200">Course description</span>
-          <textarea
-            value={row.courseDescription}
-            onChange={(e) => setRow({ ...row, courseDescription: e.target.value })}
-            rows={3}
-            placeholder="Describe what students will learn in this course..."
+                <textarea
+                  value={row.courseDescription}
+                  onChange={(e) => setRow({ ...row, courseDescription: e.target.value })}
+                  rows={3}
+                  placeholder="Describe what students will learn in this course..."
                   className={`${fieldClassName} min-h-28 resize-y`}
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-sm sm:col-span-2">
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-sm sm:col-span-2">
                 <span className="font-medium text-slate-200">Bio</span>
-          <textarea
-            value={row.bio}
-            onChange={(e) => setRow({ ...row, bio: e.target.value })}
-            rows={3}
+                <textarea
+                  value={row.bio}
+                  onChange={(e) => setRow({ ...row, bio: e.target.value })}
+                  rows={3}
                   className={`${fieldClassName} min-h-28 resize-y`}
-          />
-        </label>
+                />
+              </label>
             </div>
           </div>
         </div>
 
         <div className="space-y-4">
           <div className={sectionClassName}>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-fuchsia-200/75">Payment systems</p>
-            <div className="mt-4 grid gap-4">
-        <label className="flex flex-col gap-1 text-sm sm:col-span-2">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-fuchsia-200/75 sm:text-[11px]">Payment systems</p>
+            <div className="mt-3 grid gap-3 sm:mt-4 sm:gap-4">
+              <label className="flex flex-col gap-1 text-sm sm:col-span-2">
                 <span className="font-medium text-slate-200">
-            Payment amounts (NGN){" "}
+                  Payment amounts (NGN){" "}
                   <span className="text-xs font-normal text-slate-500">comma-separated, e.g., 5000,10000,50000</span>
-          </span>
-          <input
-            value={row.paymentAmounts.join(", ")}
-            onChange={(e) => {
-              const amounts = e.target.value
-                .split(",")
-                .map((s) => Number(s.trim()))
-                .filter((n) => Number.isFinite(n) && n > 0);
-              setRow({ ...row, paymentAmounts: amounts });
-            }}
-            placeholder="5000, 10000, 50000"
+                </span>
+                <input
+                  value={row.paymentAmounts.join(", ")}
+                  onChange={(e) => {
+                    const amounts = e.target.value
+                      .split(",")
+                      .map((s) => Number(s.trim()))
+                      .filter((n) => Number.isFinite(n) && n > 0);
+                    setRow({ ...row, paymentAmounts: amounts });
+                  }}
+                  placeholder="5000, 10000, 50000"
                   className={fieldClassName}
-          />
+                />
                 <p className="text-xs leading-5 text-slate-400">
                   Leave empty to allow any amount. Keep values configured to restrict payment options to fixed tiers.
                 </p>
-        </label>
-        <label className="flex flex-col gap-1 text-sm">
+              </label>
+              <label className="flex flex-col gap-1 text-sm">
                 <span className="font-medium text-slate-200">Paystack split code</span>
-          <input
-            value={row.paystackSplitCode ?? ""}
-            onChange={(e) => setRow({ ...row, paystackSplitCode: e.target.value || null })}
-            placeholder="SPL_..."
+                <input
+                  value={row.paystackSplitCode ?? ""}
+                  onChange={(e) => setRow({ ...row, paystackSplitCode: e.target.value || null })}
+                  placeholder="SPL_..."
                   className={`${fieldClassName} font-mono text-xs tracking-[0.16em]`}
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-sm">
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-sm">
                 <span className="font-medium text-slate-200">Paystack subaccount code</span>
-          <input
-            value={row.paystackSubaccountCode ?? ""}
-            onChange={(e) => setRow({ ...row, paystackSubaccountCode: e.target.value || null })}
-            placeholder="ACCT_..."
+                <input
+                  value={row.paystackSubaccountCode ?? ""}
+                  onChange={(e) => setRow({ ...row, paystackSubaccountCode: e.target.value || null })}
+                  placeholder="ACCT_..."
                   className={`${fieldClassName} font-mono text-xs tracking-[0.16em]`}
-          />
-        </label>
+                />
+              </label>
             </div>
           </div>
 
           <div className={sectionClassName}>
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.32em] text-emerald-200/75">Withdrawal queue</p>
-                <p className="mt-2 text-sm text-slate-400">Creators see these statuses in their dashboard.</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-emerald-200/75 sm:text-[11px]">Withdrawal queue</p>
+                <p className="mt-1 text-xs text-slate-400 sm:mt-2 sm:text-sm">Creators see these statuses in their dashboard.</p>
               </div>
               <p className="text-xs text-slate-500">{withdrawals.length} requests</p>
             </div>
             {withdrawalMsg && <p className="mt-3 text-sm text-emerald-300">{withdrawalMsg}</p>}
             {withdrawalErr && <p className="mt-3 text-sm text-rose-300">{withdrawalErr}</p>}
-            <div className="mt-4 space-y-3">
+            <div className="mt-3 space-y-3 sm:mt-4">
               {withdrawals.length === 0 ? (
                 <p className="text-sm text-slate-400">No withdrawal requests for this creator yet.</p>
               ) : (
@@ -463,7 +463,7 @@ function AdminCreatorCard({ initial }: { initial: AdminCreatorRow }) {
       <button
         type="submit"
         disabled={loading}
-        className="mt-6 inline-flex rounded-full border border-cyan-300/40 bg-cyan-300/12 px-5 py-3 text-sm font-semibold text-cyan-50 shadow-[0_0_30px_rgba(34,211,238,0.18)] transition hover:bg-cyan-300/20 disabled:opacity-60"
+        className="mt-5 inline-flex w-full justify-center rounded-full border border-cyan-300/40 bg-cyan-300/12 px-4 py-2.5 text-sm font-semibold text-cyan-50 shadow-[0_0_30px_rgba(34,211,238,0.18)] transition hover:bg-cyan-300/20 disabled:opacity-60 sm:mt-6 sm:w-auto sm:px-5 sm:py-3"
       >
         {loading ? "Saving…" : "Save changes"}
       </button>
@@ -483,7 +483,7 @@ function WithdrawalRow({
   const [saving, setSaving] = useState(false);
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+    <div className="rounded-2xl border border-white/10 bg-white/5 p-3 sm:p-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="font-semibold text-white">{formatNgnFromKobo(request.amountKobo)}</p>
@@ -493,7 +493,7 @@ function WithdrawalRow({
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value as WithdrawalStatus)}
-            className="rounded-full border border-white/12 bg-white/8 px-3 py-2 text-xs uppercase tracking-[0.16em] text-slate-100"
+            className="rounded-full border border-white/12 bg-white/8 px-2 py-1.5 text-[11px] uppercase tracking-[0.16em] text-slate-100 sm:px-3 sm:py-2 sm:text-xs"
           >
             {withdrawalStatuses.map((item) => (
               <option key={item} value={item} className="bg-slate-950">
@@ -509,7 +509,7 @@ function WithdrawalRow({
               await onSave(request.id, status, adminNote);
               setSaving(false);
             }}
-            className="rounded-full border border-cyan-300/35 bg-cyan-300/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-cyan-100 disabled:opacity-60"
+            className="rounded-full border border-cyan-300/35 bg-cyan-300/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100 disabled:opacity-60 sm:px-4 sm:py-2 sm:text-xs"
           >
             {saving ? "Updating…" : "Update"}
           </button>
@@ -520,7 +520,7 @@ function WithdrawalRow({
         onChange={(e) => setAdminNote(e.target.value)}
         rows={2}
         placeholder="Optional admin note visible to the creator"
-        className={`${fieldClassName} min-h-20 resize-y`}
+        className={`${fieldClassName} mt-3 min-h-20 resize-y sm:mt-4`}
       />
     </div>
   );
