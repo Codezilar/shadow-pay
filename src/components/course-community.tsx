@@ -559,11 +559,22 @@ function CommentThread({
               <button
                 type="button"
                 onClick={() => onLike("comment", comment.id)}
-                className={comment.viewerHasLiked ? "text-cyan-300" : ""}
+                className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-semibold tracking-[0.16em] transition ${
+                  comment.viewerHasLiked
+                    ? "border-amber-300/35 bg-amber-300/12 text-amber-200"
+                    : "border-white/10 bg-white/[0.03] text-slate-400 hover:border-amber-300/20 hover:text-amber-200"
+                }`}
+                aria-pressed={comment.viewerHasLiked}
               >
-                {comment.likesCount} likes
+                <span aria-hidden="true">{comment.viewerHasLiked ? "😍" : "🤍"}</span>
+                <span>{comment.likesCount}</span>
               </button>
-              <button type="button" onClick={() => setShowReply((value) => !value)}>
+              <button
+                type="button"
+                onClick={() => setShowReply((value) => !value)}
+                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[11px] font-semibold tracking-[0.16em] text-slate-400 transition hover:border-cyan-300/20 hover:text-cyan-200"
+              >
+                <span aria-hidden="true">↩</span>
                 reply
               </button>
             </div>
