@@ -14,14 +14,16 @@ export default async function Home() {
       <section className="relative mx-auto flex max-w-6xl flex-1 flex-col gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:flex-row lg:items-center lg:gap-16">
         <div className="flex-1 space-y-7">
           <p className="inline-flex rounded-full border border-cyan-300/30 bg-cyan-300/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.22em] text-cyan-100">
-            Built for Nigeria · Paystack · NGN
+            Built for creators, by creators!
           </p>
           <h1 className="text-4xl font-semibold tracking-[0.05em] text-white sm:text-5xl lg:text-6xl">
-            Launch creator commerce from a futuristic payout network.
+            Monetize your audience with <br className="hidden sm:block" />
+            branded payment links and community.
           </h1>
           <p className="max-w-2xl text-lg leading-relaxed text-slate-300">
-            Creators get a branded payment link. You set each creator&apos;s revenue share in admin. Checkout runs on
-            Paystack with card, bank transfer, USSD, and more while your platform keeps a clear audit trail.
+            Paystack-powered payment links, course communities, and engagement 
+            tools—all in one seamless experience. Focus on creating while we 
+            handle the payments and community.
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
