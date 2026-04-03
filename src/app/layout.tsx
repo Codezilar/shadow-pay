@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { MobileAppPrompt } from "@/components/mobile-app-prompt";
 import { Providers } from "@/components/providers";
 import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
@@ -20,6 +21,7 @@ export default async function RootLayout({
         <Providers>
           <SiteHeader />
           <main className="relative flex flex-1 flex-col">{children}</main>
+          <MobileAppPrompt />
         </Providers>
       </body>
     </html>
