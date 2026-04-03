@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Role } from "@prisma/client";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
@@ -41,12 +42,12 @@ export default async function CommunityPage({ params, searchParams }: Props) {
             This course is currently under review and will be available soon. Please check back later.
           </p>
           <div className="mt-8 flex justify-center">
-            <a
+            <Link
               href="/"
               className="inline-flex items-center justify-center rounded-full bg-cyan-500/20 px-6 py-3 text-sm font-semibold text-cyan-100 border border-cyan-300/30 hover:bg-cyan-500/30 transition-colors"
             >
               Return Home
-            </a>
+            </Link>
           </div>
         </div>
       </div>

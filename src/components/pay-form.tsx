@@ -30,8 +30,6 @@ export function PayForm({ creator }: { creator: Creator }) {
 
   const amountNum = Number(amount);
   const amountKobo = Number.isFinite(amountNum) ? Math.round(amountNum * 100) : 0;
-  const creatorKobo = Math.floor((amountKobo * creator.creatorSharePercent) / 100);
-  const platformKobo = amountKobo - creatorKobo;
 
   async function pay(e: React.FormEvent) {
     e.preventDefault();

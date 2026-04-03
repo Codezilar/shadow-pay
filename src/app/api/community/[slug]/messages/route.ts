@@ -4,6 +4,7 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { resolveCommunityAccess } from "@/lib/community";
 import { prisma } from "@/lib/db";
+import { notifyCreatorPost } from "@/lib/notifications";
 
 const bodySchema = z.object({
   body: z.string().min(1).max(2000),
@@ -90,6 +91,10 @@ export async function POST(req: Request, ctx: { params: Promise<{ slug: string }
       body: parsed.data.body.trim(),
     },
   });
+
+  if (message.authorRole === Role.CREATOR) {
+    await notifyCreatorPost(message.id);
+  }
 
   return NextResponse.json({ message });
 }

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { getCreatorFinancialSummary } from "@/lib/creator-finance";
 import { prisma } from "@/lib/db";
+import { notifyWithdrawalRequest } from "@/lib/notifications";
 
 const bodySchema = z.object({
   amountNgn: z.number().positive(),
@@ -55,6 +56,8 @@ export async function POST(req: Request) {
       amountKobo,
     },
   });
+
+  await notifyWithdrawalRequest(requestRecord.id);
 
   return NextResponse.json({ request: requestRecord });
 }

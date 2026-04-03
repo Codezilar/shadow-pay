@@ -18,7 +18,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/55 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
         <Link href="/" className="text-sm font-semibold uppercase tracking-[0.28em] text-slate-100">
-          CreatorPay <span className="text-cyan-300">NG</span>
+          NexaPay <span className="text-cyan-300">Official</span>
         </Link>
         <nav className="hidden items-center gap-4 text-sm text-slate-300 sm:flex sm:gap-6">
           {!session && (

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { ensureEnrollmentForReference } from "@/lib/community";
+import { notifyPaymentSuccess } from "@/lib/notifications";
 import { paystackVerify } from "@/lib/paystack";
 
 export async function GET(req: Request) {
@@ -18,12 +19,20 @@ export async function GET(req: Request) {
   }
 
   const ok = data.status === "success";
+  const transactionBefore = await prisma.transaction.findUnique({
+    where: { paystackReference: reference },
+    select: { status: true },
+  });
+
   await prisma.transaction.updateMany({
     where: { paystackReference: reference },
     data: { status: ok ? "success" : "failed" },
   });
 
   const enrollment = ok ? await ensureEnrollmentForReference(reference) : null;
+  if (ok && transactionBefore?.status !== "success") {
+    await notifyPaymentSuccess(reference, enrollment ? `/community/${enrollment.creatorSlug}?access=${enrollment.token}` : null);
+  }
 
   return NextResponse.json({
     ok,
