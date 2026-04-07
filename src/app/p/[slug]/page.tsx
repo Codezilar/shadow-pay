@@ -4,6 +4,17 @@ import { notFound } from "next/navigation";
 
 type Props = { params: Promise<{ slug: string }> };
 
+function parsePaymentAmountsJson(value: string | null | undefined) {
+  if (!value) return [];
+
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed.filter((entry) => typeof entry === "number") : [];
+  } catch {
+    return [];
+  }
+}
+
 export default async function CreatorPayPage({ params }: Props) {
   const { slug } = await params;
   const creator = await prisma.creatorProfile.findFirst({
@@ -41,7 +52,7 @@ export default async function CreatorPayPage({ params }: Props) {
               displayName: creator.displayName,
               bio: creator.bio,
               creatorSharePercent: creator.creatorSharePercent,
-              paymentAmounts: JSON.parse(creator.paymentAmountsJson || "[]"),
+              paymentAmounts: parsePaymentAmountsJson(creator.paymentAmountsJson),
               courseTitle: creator.courseTitle,
               courseDescription: creator.courseDescription,
             }}
