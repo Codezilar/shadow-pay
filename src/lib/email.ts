@@ -315,6 +315,26 @@ export function creatorPostAdminEmail(args: {
   };
 }
 
+export function creatorApprovedEmail(args: {
+  creatorName: string;
+  creatorEmail: string;
+  dashboardUrl: string;
+}) {
+  return {
+    subject: "Your creator profile has been approved",
+    html: emailShell({
+      eyebrow: "Creator Approved",
+      title: "Your creator profile is now live",
+      intro: [
+        `Hi ${args.creatorName}, your creator profile has been approved by the admin team.`,
+        "You can now sign in to manage your profile, payouts, and course setup from your dashboard.",
+      ],
+      facts: [{ label: "Account", value: args.creatorEmail }],
+      cta: { label: "Open creator dashboard", href: args.dashboardUrl },
+    }),
+  };
+}
+
 export function withdrawalRequestCreatorEmail(args: {
   creatorName: string;
   amount: string;

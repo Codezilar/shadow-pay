@@ -16,50 +16,51 @@ function parsePaymentAmountsJson(value: string | null | undefined) {
   }
 }
 
+async function loadAdminData() {
+  const creators = await prisma.creatorProfile.findMany({
+    orderBy: { createdAt: "desc" },
+    include: { user: { select: { email: true, name: true } } },
+  });
+
+  const successful = await prisma.transaction.aggregate({
+    where: { status: "success" },
+    _sum: {
+      amountKobo: true,
+      creatorAmountKobo: true,
+      platformAmountKobo: true,
+    },
+    _count: {
+      _all: true,
+    },
+  });
+
+  const [enrollmentCounts, withdrawalRequests] = await Promise.all([
+    prisma.studentEnrollment.groupBy({
+      by: ["creatorProfileId"],
+      _count: {
+        _all: true,
+      },
+    }),
+    prisma.withdrawalRequest.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 100,
+    }),
+  ]);
+
+  const finances = await Promise.all(creators.map((creator) => getCreatorFinancialSummary(creator.id)));
+
+  return { creators, successful, enrollmentCounts, withdrawalRequests, finances };
+}
+
 export default async function AdminPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
   if (session.user.role !== "ADMIN") redirect("/dashboard");
 
-  let adminData:
-    | {
-        creators: Awaited<ReturnType<typeof prisma.creatorProfile.findMany>>;
-        successful: Awaited<ReturnType<typeof prisma.transaction.aggregate>>;
-        enrollmentCounts: Awaited<ReturnType<typeof prisma.studentEnrollment.groupBy>>;
-        withdrawalRequests: Awaited<ReturnType<typeof prisma.withdrawalRequest.findMany>>;
-        finances: Awaited<ReturnType<typeof getCreatorFinancialSummary>>[];
-      }
-    | null = null;
+  let adminData: Awaited<ReturnType<typeof loadAdminData>> | null = null;
 
   try {
-    const creators = await prisma.creatorProfile.findMany({
-      orderBy: { createdAt: "desc" },
-      include: { user: { select: { email: true, name: true } } },
-    });
-
-    const successful = await prisma.transaction.aggregate({
-      where: { status: "success" },
-      _sum: {
-        amountKobo: true,
-        creatorAmountKobo: true,
-        platformAmountKobo: true,
-      },
-      _count: true,
-    });
-
-    const [enrollmentCounts, withdrawalRequests] = await Promise.all([
-      prisma.studentEnrollment.groupBy({
-        by: ["creatorProfileId"],
-        _count: true,
-      }),
-      prisma.withdrawalRequest.findMany({
-        orderBy: { createdAt: "desc" },
-        take: 100,
-      }),
-    ]);
-
-    const finances = await Promise.all(creators.map((creator) => getCreatorFinancialSummary(creator.id)));
-    adminData = { creators, successful, enrollmentCounts, withdrawalRequests, finances };
+    adminData = await loadAdminData();
   } catch (error) {
     console.error("Admin page failed to load", error);
   }
@@ -86,7 +87,7 @@ export default async function AdminPage() {
     );
   }
 
-  const enrollmentCountMap = new Map(adminData.enrollmentCounts.map((entry) => [entry.creatorProfileId, entry._count]));
+  const enrollmentCountMap = new Map(adminData.enrollmentCounts.map((entry) => [entry.creatorProfileId, entry._count._all]));
 
   return (
     <div className="space-y-4">
@@ -95,7 +96,7 @@ export default async function AdminPage() {
         stats={{
           totalCreators: adminData.creators.length,
           approvedCreators: adminData.creators.filter((c) => c.approved).length,
-          successfulTransactions: adminData.successful._count,
+          successfulTransactions: adminData.successful._count._all,
           grossKobo: adminData.successful._sum.amountKobo ?? 0,
           creatorPayoutKobo: adminData.successful._sum.creatorAmountKobo ?? 0,
           platformRevenueKobo: adminData.successful._sum.platformAmountKobo ?? 0,

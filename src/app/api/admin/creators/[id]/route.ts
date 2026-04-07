@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
+import { notifyCreatorApproved } from "@/lib/notifications";
 
 const patchSchema = z.object({
   approved: z.boolean().optional(),
@@ -54,10 +55,24 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
   }
 
   try {
+    const existingProfile = await prisma.creatorProfile.findUnique({
+      where: { id },
+      select: { id: true, approved: true },
+    });
+
+    if (!existingProfile) {
+      return NextResponse.json({ error: "Creator not found" }, { status: 404 });
+    }
+
     const profile = await prisma.creatorProfile.update({
       where: { id },
       data: update,
     });
+
+    if (!existingProfile.approved && profile.approved) {
+      await notifyCreatorApproved(profile.id);
+    }
+
     return NextResponse.json({ profile });
   } catch {
     return NextResponse.json({ error: "Creator not found" }, { status: 404 });

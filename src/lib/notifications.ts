@@ -2,6 +2,7 @@ import { Role } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import {
   absoluteUrl,
+  creatorApprovedEmail,
   creatorPostAdminEmail,
   creatorPostStudentEmail,
   getAdminEmails,
@@ -205,4 +206,30 @@ export async function notifyWithdrawalRequest(requestId: string) {
       });
     })
   );
+}
+
+export async function notifyCreatorApproved(profileId: string) {
+  const profile = await prisma.creatorProfile.findUnique({
+    where: { id: profileId },
+    include: {
+      user: true,
+    },
+  });
+
+  if (!profile || !profile.approved) return;
+
+  const creatorName = profile.displayName || profile.user.name || profile.user.email;
+  const message = creatorApprovedEmail({
+    creatorName,
+    creatorEmail: profile.user.email,
+    dashboardUrl: absoluteUrl("/dashboard"),
+  });
+
+  await sendEmailOnce({
+    eventKey: `creator-approved:${profile.id}:${profile.user.email.toLowerCase()}`,
+    eventType: "creator-approved",
+    to: profile.user.email,
+    subject: message.subject,
+    html: message.html,
+  });
 }
