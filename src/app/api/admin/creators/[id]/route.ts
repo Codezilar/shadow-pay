@@ -74,7 +74,8 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
     }
 
     return NextResponse.json({ profile });
-  } catch {
-    return NextResponse.json({ error: "Creator not found" }, { status: 404 });
+  } catch (error) {
+    console.error("Admin creator update failed", error);
+    return NextResponse.json({ error: "Failed to update creator" }, { status: 500 });
   }
 }

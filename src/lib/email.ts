@@ -1,9 +1,14 @@
+import nodemailer from "nodemailer";
 import { prisma } from "@/lib/db";
 
-const RESEND_API_URL = "https://api.resend.com/emails";
-
 function appUrl(): string {
-  const url = process.env.NEXT_PUBLIC_APP_URL || process.env.AUTH_URL;
+  const vercelUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
+  const normalizedVercelUrl = vercelUrl
+    ? vercelUrl.startsWith("http://") || vercelUrl.startsWith("https://")
+      ? vercelUrl
+      : `https://${vercelUrl}`
+    : undefined;
+  const url = process.env.NEXT_PUBLIC_APP_URL || process.env.AUTH_URL || normalizedVercelUrl;
   if (!url) throw new Error("Set NEXT_PUBLIC_APP_URL (or AUTH_URL) to your public site URL");
   return url.replace(/\/$/, "");
 }
@@ -12,16 +17,104 @@ function emailFrom(): string {
   return process.env.EMAIL_FROM || "CreatorPay NG <notifications@creatorpay.ng>";
 }
 
+function extractEmailAddress(value: string | undefined) {
+  if (!value) return null;
+
+  const trimmed = value.trim();
+  const angleMatch = trimmed.match(/<([^>]+)>/);
+  const candidate = angleMatch ? angleMatch[1].trim() : trimmed;
+
+  return candidate.includes("@") ? candidate : null;
+}
+
 function replyTo(): string | undefined {
   return process.env.EMAIL_REPLY_TO || undefined;
 }
 
-function resendApiKey() {
-  return process.env.RESEND_API_KEY;
+function smtpConfig() {
+  const host = process.env.SMTP_HOST;
+  const portRaw = process.env.SMTP_PORT;
+  const configuredUser = process.env.SMTP_USER?.trim();
+  const fallbackUser = extractEmailAddress(emailFrom()) || extractEmailAddress(process.env.EMAIL_REPLY_TO);
+  const user = configuredUser && configuredUser.includes("@") ? configuredUser : fallbackUser;
+  const pass = process.env.SMTP_PASS;
+
+  if (!host || !portRaw || !user || !pass) return null;
+
+  const port = Number(portRaw);
+  if (!Number.isFinite(port)) return null;
+
+  const secureRaw = process.env.SMTP_SECURE?.trim().toLowerCase();
+  const secure = secureRaw ? secureRaw === "true" : port === 465;
+
+  return { host, port, secure, user, pass };
 }
 
 function supportEmail() {
   return process.env.SUPPORT_EMAIL || process.env.ADMIN_EMAIL || "support@creatorpay.ng";
+}
+
+async function findEmailDeliveryLog(eventKey: string) {
+  try {
+    return await prisma.emailDeliveryLog.findUnique({ where: { eventKey } });
+  } catch (error) {
+    console.warn("Email delivery log lookup failed; continuing without dedupe.", error);
+    return null;
+  }
+}
+
+async function writeEmailDeliveryLog({
+  eventKey,
+  eventType,
+  recipient,
+  status,
+  error,
+}: {
+  eventKey: string;
+  eventType: string;
+  recipient: string;
+  status: "SENT" | "FAILED";
+  error?: string | null;
+}) {
+  try {
+    await prisma.emailDeliveryLog.upsert({
+      where: { eventKey },
+      create: {
+        eventKey,
+        eventType,
+        recipient,
+        status,
+        error: error ?? null,
+      },
+      update: {
+        status,
+        error: error ?? null,
+      },
+    });
+  } catch (logError) {
+    console.warn("Email delivery log write failed.", logError);
+  }
+}
+
+let cachedTransporter: nodemailer.Transporter | null = null;
+
+function getTransporter() {
+  if (cachedTransporter) return cachedTransporter;
+
+  const config = smtpConfig();
+  if (!config) return null;
+
+  cachedTransporter = nodemailer.createTransport({
+    host: config.host,
+    port: config.port,
+    secure: config.secure,
+    auth: {
+      user: config.user,
+      pass: config.pass,
+    },
+  });
+
+  return cachedTransporter;
 }
 
 function escapeHtml(value: string) {
@@ -126,64 +219,39 @@ export async function sendEmailOnce({
   const email = to.trim().toLowerCase();
   if (!email) return;
 
-  const existing = await prisma.emailDeliveryLog.findUnique({ where: { eventKey } });
+  const existing = await findEmailDeliveryLog(eventKey);
   if (existing?.status === "SENT") return;
 
-  const apiKey = resendApiKey();
-  if (!apiKey) {
-    console.warn(`Email skipped for ${eventType}: RESEND_API_KEY is not configured`);
+  const transporter = getTransporter();
+  if (!transporter) {
+    console.warn(`Email skipped for ${eventType}: SMTP_HOST/SMTP_PORT/SMTP_USER/SMTP_PASS are not fully configured`);
     return;
   }
 
   try {
-    const res = await fetch(RESEND_API_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: emailFrom(),
-        to: [email],
-        reply_to: replyTo(),
-        subject,
-        html,
-      }),
+    await transporter.sendMail({
+      from: emailFrom(),
+      to: email,
+      replyTo: replyTo(),
+      subject,
+      html,
     });
 
-    const data = (await res.json().catch(() => ({}))) as { message?: string };
-    if (!res.ok) {
-      throw new Error(data.message || "Email provider request failed");
-    }
-
-    await prisma.emailDeliveryLog.upsert({
-      where: { eventKey },
-      create: {
-        eventKey,
-        eventType,
-        recipient: email,
-        status: "SENT",
-      },
-      update: {
-        status: "SENT",
-        error: null,
-      },
+    await writeEmailDeliveryLog({
+      eventKey,
+      eventType,
+      recipient: email,
+      status: "SENT",
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown email error";
-    await prisma.emailDeliveryLog.upsert({
-      where: { eventKey },
-      create: {
-        eventKey,
-        eventType,
-        recipient: email,
-        status: "FAILED",
-        error: message,
-      },
-      update: {
-        status: "FAILED",
-        error: message,
-      },
+    console.error(`Email send failed for ${eventType} -> ${email}: ${message}`);
+    await writeEmailDeliveryLog({
+      eventKey,
+      eventType,
+      recipient: email,
+      status: "FAILED",
+      error: message,
     });
   }
 }

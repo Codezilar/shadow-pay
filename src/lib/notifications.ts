@@ -45,30 +45,29 @@ export async function notifyPaymentSuccess(reference: string, communityPath?: st
     creatorName,
     communityUrl,
   });
-  await sendEmailOnce({
-    eventKey: `payment-success:student:${reference}:${transaction.customerEmail.toLowerCase()}`,
-    eventType: "payment-success-student",
-    to: transaction.customerEmail,
-    subject: studentEmail.subject,
-    html: studentEmail.html,
-  });
-
   const creatorEmail = paymentSuccessCreatorEmail({
     creatorName,
     studentEmail: transaction.customerEmail,
     courseTitle,
     amount,
   });
-  await sendEmailOnce({
-    eventKey: `payment-success:creator:${reference}:${transaction.creatorProfile.user.email.toLowerCase()}`,
-    eventType: "payment-success-creator",
-    to: transaction.creatorProfile.user.email,
-    subject: creatorEmail.subject,
-    html: creatorEmail.html,
-  });
-
   const adminEmails = await getAdminEmails();
-  await Promise.all(
+
+  await Promise.allSettled([
+    sendEmailOnce({
+      eventKey: `payment-success:student:${reference}:${transaction.customerEmail.toLowerCase()}`,
+      eventType: "payment-success-student",
+      to: transaction.customerEmail,
+      subject: studentEmail.subject,
+      html: studentEmail.html,
+    }),
+    sendEmailOnce({
+      eventKey: `payment-success:creator:${reference}:${transaction.creatorProfile.user.email.toLowerCase()}`,
+      eventType: "payment-success-creator",
+      to: transaction.creatorProfile.user.email,
+      subject: creatorEmail.subject,
+      html: creatorEmail.html,
+    }),
     adminEmails.map(async (adminEmail) => {
       const adminMessage = paymentSuccessAdminEmail({
         creatorName,
@@ -83,8 +82,8 @@ export async function notifyPaymentSuccess(reference: string, communityPath?: st
         subject: adminMessage.subject,
         html: adminMessage.html,
       });
-    })
-  );
+    }),
+  ].flat());
 }
 
 export async function notifyCreatorPost(messageId: string) {
@@ -114,7 +113,7 @@ export async function notifyCreatorPost(messageId: string) {
   const courseTitle = message.creatorProfile.courseTitle || message.creatorProfile.displayName;
   const preview = message.body.length > 180 ? `${message.body.slice(0, 177)}...` : message.body;
 
-  await Promise.all(
+  await Promise.allSettled(
     message.creatorProfile.studentEnrollments.map(async (enrollment) => {
       const latestToken = enrollment.accessTokens[0]?.token;
       const communityPath = latestToken
@@ -139,7 +138,7 @@ export async function notifyCreatorPost(messageId: string) {
   );
 
   const adminEmails = await getAdminEmails();
-  await Promise.all(
+  await Promise.allSettled(
     adminEmails.map(async (adminEmail) => {
       const email = creatorPostAdminEmail({
         creatorName,
@@ -189,7 +188,7 @@ export async function notifyWithdrawalRequest(requestId: string) {
   });
 
   const adminEmails = await getAdminEmails();
-  await Promise.all(
+  await Promise.allSettled(
     adminEmails.map(async (adminEmail) => {
       const adminMessage = withdrawalRequestAdminEmail({
         creatorName,
