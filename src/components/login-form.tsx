@@ -37,7 +37,7 @@ export function LoginForm() {
       <div>
         <p className="text-xs uppercase tracking-[0.3em] text-cyan-200/80">Command Access</p>
         <h1 className="mt-3 text-2xl font-semibold tracking-[0.05em] text-white">Welcome back</h1>
-        <p className="mt-2 text-sm text-slate-400">Sign in to manage your creator profile and payouts.</p>
+        <p className="mt-2 text-sm text-slate-400">Sign in to manage your creator account or open the course community you paid for.</p>
       </div>
       {error && (
         <p className="rounded-2xl border border-rose-400/25 bg-rose-400/10 px-4 py-3 text-sm text-rose-200" role="alert">

@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { compare, hash } from "bcryptjs";
+import { Role } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { paystackInitialize } from "@/lib/paystack";
 
@@ -7,6 +9,7 @@ const bodySchema = z.object({
   slug: z.string().min(1),
   amountNgn: z.number().positive().max(50_000_000),
   customerEmail: z.string().email(),
+  password: z.string().min(8).max(128),
 });
 
 function appUrl(): string {
@@ -28,7 +31,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   }
 
-  const { slug, amountNgn, customerEmail } = parsed.data;
+  const { slug, amountNgn, customerEmail, password } = parsed.data;
 
   const creator = await prisma.creatorProfile.findFirst({
     where: { slug: slug.trim().toLowerCase(), approved: true },
@@ -41,6 +44,32 @@ export async function POST(req: Request) {
   const amountKobo = Math.round(amountNgn * 100);
   if (amountKobo < 100_00) {
     return NextResponse.json({ error: "Minimum amount is ₦100" }, { status: 400 });
+  }
+
+  const normalizedEmail = customerEmail.trim().toLowerCase();
+  const existingUser = await prisma.user.findUnique({ where: { email: normalizedEmail } });
+
+  if (existingUser) {
+    if (existingUser.role !== Role.STUDENT) {
+      return NextResponse.json(
+        { error: "This email is already used by a creator or admin account. Use a different email for student access." },
+        { status: 409 }
+      );
+    }
+
+    const passwordMatches = await compare(password, existingUser.passwordHash);
+    if (!passwordMatches) {
+      return NextResponse.json({ error: "That student account already exists. Enter the correct password to continue." }, { status: 409 });
+    }
+  } else {
+    await prisma.user.create({
+      data: {
+        email: normalizedEmail,
+        passwordHash: await hash(password, 12),
+        name: normalizedEmail.split("@")[0],
+        role: Role.STUDENT,
+      },
+    });
   }
 
   const callbackUrl = `${appUrl()}/p/${creator.slug}/complete`;
@@ -88,7 +117,7 @@ export async function POST(req: Request) {
       creatorSharePercentSnapshot: creator.creatorSharePercent,
       creatorAmountKobo,
       platformAmountKobo,
-      customerEmail: customerEmail.trim().toLowerCase(),
+      customerEmail: normalizedEmail,
       metadata: metadata as object,
       creatorProfileId: creator.id,
     },

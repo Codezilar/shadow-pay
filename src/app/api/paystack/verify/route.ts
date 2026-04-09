@@ -31,7 +31,7 @@ export async function GET(req: Request) {
 
   const enrollment = ok ? await ensureEnrollmentForReference(reference) : null;
   if (ok && transactionBefore?.status !== "success") {
-    await notifyPaymentSuccess(reference, enrollment ? `/community/${enrollment.creatorSlug}?access=${enrollment.token}` : null);
+    await notifyPaymentSuccess(reference, enrollment ? `/community/${enrollment.creatorSlug}` : null);
   }
 
   return NextResponse.json({
@@ -39,6 +39,6 @@ export async function GET(req: Request) {
     amountKobo: data.amount,
     currency: data.currency,
     customerEmail: data.customer?.email,
-    communityUrl: enrollment ? `/community/${enrollment.creatorSlug}?access=${enrollment.token}` : null,
+    communityUrl: enrollment ? `/community/${enrollment.creatorSlug}` : null,
   });
 }

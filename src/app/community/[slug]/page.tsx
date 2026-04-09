@@ -17,7 +17,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
   const session = await auth();
 
   if (!session) {
-    redirect(`/login?next=/community/${slug}${access ? `?access=${access}` : ""}`);
+    redirect(`/login?callbackUrl=${encodeURIComponent(`/community/${slug}${access ? `?access=${access}` : ""}`)}`);
   }
 
   const creatorProfile = await prisma.creatorProfile.findUnique({

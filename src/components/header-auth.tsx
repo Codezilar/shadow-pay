@@ -13,6 +13,11 @@ export function HeaderAuth() {
           Dashboard
         </Link>
       )}
+      {session?.user?.role === "STUDENT" && (
+        <Link href="/dashboard" className="hover:text-cyan-200">
+          My Community
+        </Link>
+      )}
       {session?.user?.role === "ADMIN" && (
         <>
           <Link href="/admin" className="hover:text-cyan-200">

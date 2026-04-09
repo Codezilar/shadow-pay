@@ -52,18 +52,8 @@ export async function ensureEnrollmentForReference(reference: string) {
     },
   });
 
-  const token = randomSecret(18);
-  await prisma.communityAccessToken.create({
-    data: {
-      token,
-      enrollmentId: enrollment.id,
-      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
-    },
-  });
-
   return {
     creatorSlug: transaction.creatorProfile.slug,
-    token,
     enrollmentId: enrollment.id,
     userId: user.id,
   };
@@ -114,6 +104,32 @@ export async function resolveCommunityAccess({
     };
   }
 
+  if (userId && userRole === Role.STUDENT) {
+    const enrollment = await prisma.studentEnrollment.findUnique({
+      where: {
+        userId_creatorProfileId: {
+          userId,
+          creatorProfileId: creatorProfile.id,
+        },
+      },
+      include: {
+        user: true,
+      },
+    });
+
+    if (enrollment) {
+      return {
+        creatorProfile,
+        membership: enrollment,
+        viewer: {
+          userId: enrollment.userId,
+          role: Role.STUDENT,
+          authorName: enrollment.user.name?.trim() || enrollment.customerEmail,
+        },
+      };
+    }
+  }
+
   if (!accessToken) {
     return null;
   }
@@ -135,6 +151,10 @@ export async function resolveCommunityAccess({
   }
 
   if (token.expiresAt && token.expiresAt < new Date()) {
+    return null;
+  }
+
+  if (userId && token.enrollment.userId !== userId) {
     return null;
   }
 

@@ -23,6 +23,7 @@ export function PayForm({ creator }: { creator: Creator }) {
       : 10000).toString()
   );
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -38,6 +39,10 @@ export function PayForm({ creator }: { creator: Creator }) {
       setError("Enter a valid amount.");
       return;
     }
+    if (password.length < 8) {
+      setError("Enter a password with at least 8 characters.");
+      return;
+    }
     setLoading(true);
     const res = await fetch("/api/paystack/initialize", {
       method: "POST",
@@ -46,13 +51,28 @@ export function PayForm({ creator }: { creator: Creator }) {
         slug: creator.slug,
         amountNgn: amountNum,
         customerEmail: email,
+        password,
       }),
     });
-    const data = (await res.json().catch(() => ({}))) as { error?: string; authorizationUrl?: string };
+    const data = (await res.json().catch(() => ({}))) as {
+      error?: string;
+      authorizationUrl?: string;
+      reference?: string;
+    };
     setLoading(false);
     if (!res.ok || !data.authorizationUrl) {
       setError(data.error || "Could not start checkout");
       return;
+    }
+    if (typeof window !== "undefined" && data.reference) {
+      sessionStorage.setItem(
+        `paystack:return:${data.reference}`,
+        JSON.stringify({
+          email: email.trim().toLowerCase(),
+          password,
+          slug: creator.slug,
+        })
+      );
     }
     window.location.href = data.authorizationUrl;
   }
@@ -103,11 +123,27 @@ export function PayForm({ creator }: { creator: Creator }) {
           className="sci-input rounded-2xl px-4 py-3"
         />
       </label>
+      <label className="flex flex-col gap-1 text-sm">
+        <span className="font-medium text-slate-200">Create or confirm your password</span>
+        <input
+          required
+          minLength={8}
+          type="password"
+          autoComplete="new-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Minimum 8 characters"
+          className="sci-input rounded-2xl px-4 py-3"
+        />
+        <span className="text-xs text-slate-500">
+          We&apos;ll use this password for your student login after payment and on future visits.
+        </span>
+      </label>
       {amountKobo >= 100_00 && (
         <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-sm text-slate-300">
           <p className="font-medium text-white">Course Access Notice</p>
           <p className="mt-2 text-xs text-slate-400">
-            You’ll gain access to the course community after completing your payment. Ensure your transaction is successful to unlock full participation.
+            You’ll gain access to the course community after completing your payment, and we&apos;ll sign you into your student session automatically in this browser.
           </p>
           <p className="mt-2 text-xs text-slate-300">
             Admin users can access all communities directly, regardless of enrollment.

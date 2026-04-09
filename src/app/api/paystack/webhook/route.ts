@@ -56,7 +56,7 @@ export async function POST(req: Request) {
   if (status === "success") {
     const enrollment = await ensureEnrollmentForReference(reference);
     if (transactionBefore?.status !== "success") {
-      await notifyPaymentSuccess(reference, enrollment ? `/community/${enrollment.creatorSlug}?access=${enrollment.token}` : null);
+      await notifyPaymentSuccess(reference, enrollment ? `/community/${enrollment.creatorSlug}` : null);
     }
   }
 

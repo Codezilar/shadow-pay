@@ -17,6 +17,9 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full antialiased">
+      <head>
+        <link rel="icon" href="/nexapay.png" sizes="any" />
+      </head>
       <body className="app-shell min-h-full flex flex-col text-slate-50">
         <Providers>
           <SiteHeader />
