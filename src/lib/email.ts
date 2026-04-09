@@ -1,3 +1,4 @@
+import { WithdrawalStatus } from "@prisma/client";
 import nodemailer from "nodemailer";
 import { prisma } from "@/lib/db";
 
@@ -444,6 +445,54 @@ export function withdrawalRequestAdminEmail(args: {
         { label: "Amount", value: args.amount },
       ],
       cta: { label: "Open withdrawals", href: args.adminUrl },
+    }),
+  };
+}
+
+function withdrawalStatusLabel(status: WithdrawalStatus) {
+  if (status === WithdrawalStatus.PROCESSING) return "Under Review";
+  if (status === WithdrawalStatus.COMPLETED) return "Completed";
+  return "Pending";
+}
+
+export function withdrawalStatusCreatorEmail(args: {
+  creatorName: string;
+  amount: string;
+  status: WithdrawalStatus;
+  adminNote?: string;
+  dashboardUrl: string;
+}) {
+  const normalizedNote = args.adminNote?.trim().replace(/\s+/g, " ");
+  const statusLabel = withdrawalStatusLabel(args.status);
+
+  const intro =
+    args.status === WithdrawalStatus.COMPLETED
+      ? [
+          `Hi ${args.creatorName}, your withdrawal request has been marked as completed by the admin team.`,
+          "Your payout processing for this request is finished.",
+        ]
+      : args.status === WithdrawalStatus.PROCESSING
+        ? [
+            `Hi ${args.creatorName}, your withdrawal request is now under review.`,
+            "The admin team has started processing your payout request.",
+          ]
+        : [
+            `Hi ${args.creatorName}, your withdrawal request has been moved back to pending.`,
+            "The admin team still needs a little more time before completing this payout request.",
+          ];
+
+  return {
+    subject: `Withdrawal update: ${statusLabel} for ${args.amount}`,
+    html: emailShell({
+      eyebrow: "Withdrawal Update",
+      title: `Your withdrawal is now ${statusLabel.toLowerCase()}`,
+      intro,
+      facts: [
+        { label: "Amount", value: args.amount },
+        { label: "Status", value: statusLabel },
+        ...(normalizedNote ? [{ label: "Admin note", value: normalizedNote }] : []),
+      ],
+      cta: { label: "Open creator dashboard", href: args.dashboardUrl },
     }),
   };
 }

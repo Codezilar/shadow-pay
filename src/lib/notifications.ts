@@ -1,4 +1,4 @@
-import { Role } from "@prisma/client";
+import { Role, WithdrawalStatus } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import {
   absoluteUrl,
@@ -12,6 +12,7 @@ import {
   sendEmailOnce,
   withdrawalRequestAdminEmail,
   withdrawalRequestCreatorEmail,
+  withdrawalStatusCreatorEmail,
 } from "@/lib/email";
 
 function formatNgnFromKobo(kobo: number) {
@@ -93,15 +94,6 @@ export async function notifyCreatorPost(messageId: string) {
       creatorProfile: {
         include: {
           user: true,
-          studentEnrollments: {
-            include: {
-              user: true,
-              accessTokens: {
-                orderBy: { createdAt: "desc" },
-                take: 1,
-              },
-            },
-          },
         },
       },
     },
@@ -113,18 +105,20 @@ export async function notifyCreatorPost(messageId: string) {
   const courseTitle = message.creatorProfile.courseTitle || message.creatorProfile.displayName;
   const preview = message.body.length > 180 ? `${message.body.slice(0, 177)}...` : message.body;
 
+  const enrollments = await prisma.studentEnrollment.findMany({
+    where: { creatorProfileId: message.creatorProfileId },
+    include: { user: true },
+  });
+
   await Promise.allSettled(
-    message.creatorProfile.studentEnrollments.map(async (enrollment) => {
-      const latestToken = enrollment.accessTokens[0]?.token;
-      const communityPath = latestToken
-        ? `/community/${message.creatorProfile.slug}?access=${latestToken}`
-        : `/community/${message.creatorProfile.slug}`;
+    enrollments.map(async (enrollment) => {
+      const studentName = enrollment.user.name?.trim() || enrollment.customerEmail;
       const email = creatorPostStudentEmail({
-        studentName: enrollment.user.name?.trim() || enrollment.customerEmail,
+        studentName,
         creatorName,
         courseTitle,
         preview,
-        communityUrl: absoluteUrl(communityPath),
+        communityUrl: absoluteUrl(`/community/${message.creatorProfile.slug}`),
       });
 
       await sendEmailOnce({
@@ -205,6 +199,47 @@ export async function notifyWithdrawalRequest(requestId: string) {
       });
     })
   );
+}
+
+export async function notifyWithdrawalStatusUpdate(requestId: string) {
+  const request = await prisma.withdrawalRequest.findUnique({
+    where: { id: requestId },
+    include: {
+      creatorProfile: {
+        include: {
+          user: true,
+        },
+      },
+    },
+  });
+
+  if (!request) return;
+
+  if (
+    request.status !== WithdrawalStatus.PENDING &&
+    request.status !== WithdrawalStatus.PROCESSING &&
+    request.status !== WithdrawalStatus.COMPLETED
+  ) {
+    return;
+  }
+
+  const creatorName = request.creatorProfile.displayName || request.creatorProfile.user.name || request.creatorProfile.user.email;
+  const amount = formatNgnFromKobo(request.amountKobo);
+  const message = withdrawalStatusCreatorEmail({
+    creatorName,
+    amount,
+    status: request.status,
+    adminNote: request.adminNote,
+    dashboardUrl: absoluteUrl("/dashboard"),
+  });
+
+  await sendEmailOnce({
+    eventKey: `withdrawal-status:${request.id}:${request.updatedAt.toISOString()}:${request.creatorProfile.user.email.toLowerCase()}`,
+    eventType: "withdrawal-status-creator",
+    to: request.creatorProfile.user.email,
+    subject: message.subject,
+    html: message.html,
+  });
 }
 
 export async function notifyCreatorApproved(profileId: string) {

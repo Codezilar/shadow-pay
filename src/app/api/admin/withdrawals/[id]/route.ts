@@ -4,6 +4,7 @@ import { z } from "zod";
 import { auth } from "@/auth";
 import { getCreatorFinancialSummary } from "@/lib/creator-finance";
 import { prisma } from "@/lib/db";
+import { notifyWithdrawalStatusUpdate } from "@/lib/notifications";
 
 const bodySchema = z.object({
   status: z.nativeEnum(WithdrawalStatus),
@@ -29,16 +30,30 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
   }
 
   const { id } = await ctx.params;
-  const updated = await prisma.withdrawalRequest.update({
-    where: { id },
-    data: {
-      status: parsed.data.status,
-      adminNote: parsed.data.adminNote ?? "",
-      processedAt: parsed.data.status === WithdrawalStatus.COMPLETED ? new Date() : null,
-    },
-  });
+  const nextAdminNote = parsed.data.adminNote ?? "";
+  const existing = await prisma.withdrawalRequest.findUnique({ where: { id } });
+  if (!existing) {
+    return NextResponse.json({ error: "Withdrawal request not found" }, { status: 404 });
+  }
+
+  const hasChanges = existing.status !== parsed.data.status || existing.adminNote !== nextAdminNote;
+
+  const updated = hasChanges
+    ? await prisma.withdrawalRequest.update({
+        where: { id },
+        data: {
+          status: parsed.data.status,
+          adminNote: nextAdminNote,
+          processedAt: parsed.data.status === WithdrawalStatus.COMPLETED ? new Date() : null,
+        },
+      })
+    : existing;
 
   const finance = await getCreatorFinancialSummary(updated.creatorProfileId);
+
+  if (hasChanges) {
+    await notifyWithdrawalStatusUpdate(updated.id);
+  }
 
   return NextResponse.json({
     request: {
