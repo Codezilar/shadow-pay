@@ -115,6 +115,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
         authorRole: message.authorRole,
         body: message.body,
         createdAt: message.createdAt.toISOString(),
+        updatedAt: message.updatedAt.toISOString(),
         likesCount: message.likes.length,
         viewerHasLiked: message.likes.some((like) => like.userId === accessResult.viewer.userId),
         comments: message.comments.map((comment) => ({

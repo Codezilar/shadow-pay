@@ -24,6 +24,7 @@ type CommunityMessage = {
   authorRole: CommunityRole;
   body: string;
   createdAt: string;
+  updatedAt: string;
   likesCount: number;
   viewerHasLiked: boolean;
   comments: CommunityComment[];
@@ -110,6 +111,10 @@ function countAllComments(comments?: CommunityComment[]): number {
   return comments.reduce((total, comment) => total + 1 + countAllComments(comment.replies ?? []), 0);
 }
 
+function wasEdited(message: CommunityMessage) {
+  return new Date(message.updatedAt).getTime() - new Date(message.createdAt).getTime() > 1000;
+}
+
 export function CourseCommunity({
   slug,
   title,
@@ -133,6 +138,10 @@ export function CourseCommunity({
   const [body, setBody] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
+  const [editingBody, setEditingBody] = useState("");
+  const [editingError, setEditingError] = useState<string | null>(null);
+  const [editingLoading, setEditingLoading] = useState(false);
 
   const latestMembers = members.slice(0, 5);
   const featuredMessage = messages[messages.length - 1] ?? null;
@@ -169,6 +178,43 @@ export function CourseCommunity({
       },
     ]);
     setBody("");
+  }
+
+  async function saveMessageEdit(messageId: string) {
+    setEditingError(null);
+    setEditingLoading(true);
+    const res = await fetch(`/api/community/${slug}/messages`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messageId,
+        body: editingBody,
+        accessToken,
+      }),
+    });
+    const data = (await res.json().catch(() => ({}))) as {
+      error?: string;
+      message?: Omit<CommunityMessage, "likesCount" | "viewerHasLiked" | "comments">;
+    };
+    setEditingLoading(false);
+    if (!res.ok || !data.message) {
+      setEditingError(data.error || "Could not update post");
+      return;
+    }
+
+    setMessages((current) =>
+      current.map((message) =>
+        message.id === messageId
+          ? {
+              ...message,
+              body: data.message!.body,
+              updatedAt: data.message!.updatedAt,
+            }
+          : message
+      )
+    );
+    setEditingMessageId(null);
+    setEditingBody("");
   }
 
   async function toggleLike(targetType: "message" | "comment", targetId: string) {
@@ -371,15 +417,67 @@ export function CourseCommunity({
                               <p className="truncate font-semibold text-white">{message.authorName}</p>
                               <p className="mt-1 text-xs text-slate-500">
                                 {formatDate(message.createdAt)} · {roleLabel(message.authorRole)}
+                                {wasEdited(message) ? " · edited" : ""}
                                 {message.authorUserId === currentUserId ? " · you" : ""}
                               </p>
                             </div>
                           </div>
+                          {canPost && (message.authorUserId === currentUserId) ? (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingMessageId(message.id);
+                                setEditingBody(message.body);
+                                setEditingError(null);
+                              }}
+                              className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-300 transition hover:border-cyan-300/25 hover:text-cyan-100"
+                            >
+                              Edit post
+                            </button>
+                          ) : null}
                         </div>
 
-                        <div className="mt-4 rounded-[22px] border border-white/8 bg-slate-950/40 px-4 py-4">
-                          <p className="whitespace-pre-wrap text-sm leading-7 text-slate-200">{renderRichText(message.body)}</p>
-                        </div>
+                        {editingMessageId === message.id ? (
+                          <div className="mt-4 rounded-[22px] border border-cyan-300/20 bg-slate-950/40 px-4 py-4">
+                            {editingError ? (
+                              <p className="mb-3 rounded-2xl border border-rose-400/25 bg-rose-400/10 px-4 py-3 text-sm text-rose-200">
+                                {editingError}
+                              </p>
+                            ) : null}
+                            <textarea
+                              value={editingBody}
+                              onChange={(e) => setEditingBody(e.target.value)}
+                              rows={5}
+                              className="min-h-28 w-full resize-none bg-transparent text-sm leading-7 text-slate-200 outline-none placeholder:text-slate-500"
+                            />
+                            <div className="mt-4 flex flex-wrap gap-3">
+                              <button
+                                type="button"
+                                onClick={() => saveMessageEdit(message.id)}
+                                disabled={editingLoading || !editingBody.trim()}
+                                className="inline-flex items-center justify-center rounded-full bg-[linear-gradient(135deg,#2563eb,#06b6d4)] px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-white disabled:opacity-60"
+                              >
+                                {editingLoading ? "Saving..." : "Save changes"}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingMessageId(null);
+                                  setEditingBody("");
+                                  setEditingError(null);
+                                }}
+                                disabled={editingLoading}
+                                className="rounded-full border border-white/10 px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.16em] text-slate-300 disabled:opacity-60"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="mt-4 rounded-[22px] border border-white/8 bg-slate-950/40 px-4 py-4">
+                            <p className="whitespace-pre-wrap text-sm leading-7 text-slate-200">{renderRichText(message.body)}</p>
+                          </div>
+                        )}
 
                         <div className="mt-4 flex flex-wrap items-center gap-4 text-xs uppercase tracking-[0.16em] text-slate-500 sm:gap-5">
                           <button

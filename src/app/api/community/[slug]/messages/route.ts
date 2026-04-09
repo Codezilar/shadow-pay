@@ -11,6 +11,12 @@ const bodySchema = z.object({
   accessToken: z.string().optional(),
 });
 
+const updateBodySchema = z.object({
+  messageId: z.string().min(1),
+  body: z.string().min(1).max(2000),
+  accessToken: z.string().optional(),
+});
+
 export async function GET(req: Request, ctx: { params: Promise<{ slug: string }> }) {
   const { slug } = await ctx.params;
   const session = await auth();
@@ -97,4 +103,57 @@ export async function POST(req: Request, ctx: { params: Promise<{ slug: string }
   }
 
   return NextResponse.json({ message });
+}
+
+export async function PATCH(req: Request, ctx: { params: Promise<{ slug: string }> }) {
+  const { slug } = await ctx.params;
+  const session = await auth();
+
+  let json: unknown;
+  try {
+    json = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
+  const parsed = updateBodySchema.safeParse(json);
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+  }
+
+  const access = await resolveCommunityAccess({
+    slug,
+    accessToken: parsed.data.accessToken,
+    userId: session?.user?.id,
+    userRole: session?.user?.role as Role | undefined,
+  });
+
+  if (!access) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const message = await prisma.communityMessage.findFirst({
+    where: {
+      id: parsed.data.messageId,
+      creatorProfileId: access.creatorProfile.id,
+    },
+  });
+
+  if (!message) {
+    return NextResponse.json({ error: "Post not found" }, { status: 404 });
+  }
+
+  const canEdit = access.viewer.role === Role.ADMIN || message.authorUserId === access.viewer.userId;
+  if (!canEdit) {
+    return NextResponse.json({ error: "You do not have permission to edit this post" }, { status: 403 });
+  }
+
+  const updatedMessage = await prisma.communityMessage.update({
+    where: { id: message.id },
+    data: {
+      body: parsed.data.body.trim(),
+    },
+  });
+
+  return NextResponse.json({ message: updatedMessage });
 }
