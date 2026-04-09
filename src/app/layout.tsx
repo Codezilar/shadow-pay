@@ -5,9 +5,14 @@ import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "CreatorPay NG — Creator payouts & Paystack splits",
+  title: "NexaPay NG — Creator payouts & Paystack splits",
   description:
     "Nigerian creator platform: sign up, personal payment links, and agreement-based revenue share with Paystack.",
+  icons: {
+    icon: "/nexapay.png",
+    shortcut: "/nexapay.png",
+    apple: "/nexapay.png",
+  },
 };
 
 export default async function RootLayout({
@@ -17,9 +22,6 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full antialiased">
-      <head>
-        <link rel="icon" href="/nexapay.png" sizes="any" />
-      </head>
       <body className="app-shell min-h-full flex flex-col text-slate-50">
         <Providers>
           <SiteHeader />
